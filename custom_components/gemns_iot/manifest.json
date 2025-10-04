@@ -1,0 +1,37 @@
+{
+  "domain": "wepower_iot",
+  "name": "Gemns™ IoT",
+  "integration_type": "device",
+  "bluetooth": [
+    {
+      "local_name": "Gemns™",
+      "connectable": false
+    },
+    {
+      "local_name": "Gemns™-*",
+      "connectable": false
+    },
+    {
+      "local_name": "WePower_*",
+      "connectable": false
+    },
+    {
+      "manufacturer_id": 22352,
+      "manufacturer_data_start": [80, 87],
+      "connectable": false
+    },
+    {
+      "service_uuid": "0000180a-0000-1000-8000-00805f9b34fb",
+      "connectable": false
+    }
+  ],
+  "codeowners": ["@wepower"],
+  "config_flow": true,
+  "dependencies": ["bluetooth"],
+  "documentation": "https://github.com/wepower/wepower-iot-homeassistant",
+  "iot_class": "local_push",
+  "loggers": ["wepower_iot_ble"],
+  "requirements": ["cryptography>=3.0.0"],
+  "version": "1.0.101",
+  "icon": "/local/wepower_iot/icon.png"
+}
