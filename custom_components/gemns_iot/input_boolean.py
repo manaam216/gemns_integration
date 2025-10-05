@@ -30,18 +30,18 @@ async def async_setup_entry(
     entities = []
     
     # BLE Toggle
-    ble_toggle = WePowerIoTBLEToggle(device_manager)
+    ble_toggle = GemnsIoTBLEToggle(device_manager)
     entities.append(ble_toggle)
     
     # Zigbee Toggle
-    zigbee_toggle = WePowerIoTZigbeeToggle(device_manager)
+    zigbee_toggle = GemnsIoTZigbeeToggle(device_manager)
     entities.append(zigbee_toggle)
     
     if entities:
         async_add_entities(entities)
 
 
-class WePowerIoTBLEToggle(InputBoolean):
+class GemnsIoTBLEToggle(InputBoolean):
     """Representation of BLE toggle."""
 
     def __init__(self, device_manager):
@@ -87,7 +87,7 @@ class WePowerIoTBLEToggle(InputBoolean):
         self.hass.bus.async_fire(f"{DOMAIN}_ble_toggled", {"enabled": False})
 
 
-class WePowerIoTZigbeeToggle(InputBoolean):
+class GemnsIoTZigbeeToggle(InputBoolean):
     """Representation of Zigbee toggle."""
 
     def __init__(self, device_manager):

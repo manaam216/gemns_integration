@@ -13,7 +13,7 @@ COMPANY_ID = 0x5750  # Gemns™ company ID
 PACKET_LENGTH = 18  # Total packet length (HA BLE driver filters company ID)
 ENCRYPTED_DATA_SIZE = 16
 
-class WePowerPacketFlags:
+class GemnsPacketFlags:
     """Flags field parser for Gemns™ packets."""
     
     def __init__(self, flags_byte: int):
@@ -22,7 +22,7 @@ class WePowerPacketFlags:
         self.event_counter_lsb = (flags_byte >> 2) & 0x03
         self.payload_length = (flags_byte >> 4) & 0x0F
 
-class WePowerEncryptedData:
+class GemnsEncryptedData:
     """Encrypted data structure for Gemns™ packets."""
     
     def __init__(self, data: bytes):
@@ -49,7 +49,7 @@ class WePowerEncryptedData:
         _LOGGER.info("  Sensor Type (bytes 6-7): %s", self.sensor_type.hex())
         _LOGGER.info("  Payload (bytes 8-15): %s", self.payload.hex())
 
-class WePowerPacket:
+class GemnsPacket:
     """Parser for Gemns™ IoT BLE packets."""
     
     def __init__(self, raw_data: bytes):
@@ -61,8 +61,8 @@ class WePowerPacket:
         # Packet structure after HA BLE driver filters company ID:
         # Flags (1 byte) + Encrypted Data (16 bytes) + CRC (1 byte) = 18 bytes
         self.company_id = COMPANY_ID  # Gemns™ company ID (filtered by HA)
-        self.flags = WePowerPacketFlags(raw_data[0])  # 1 byte flags
-        self.encrypted_data = WePowerEncryptedData(raw_data[1:17])  # 16 bytes encrypted data
+        self.flags = GemnsPacketFlags(raw_data[0])  # 1 byte flags
+        self.encrypted_data = GemnsEncryptedData(raw_data[1:17])  # 16 bytes encrypted data
         self.crc = raw_data[17]  # 1 byte CRC (position 17, not 16!)
         
         _LOGGER.info("🔍 PACKET STRUCTURE: Length=%d, Flags=0x%02X, CRC=0x%02X", 
@@ -133,7 +133,7 @@ class WePowerPacket:
                 decrypted_data = decryptor.update(self.encrypted_data.data_bytes) + decryptor.finalize()
             
             # Parse decrypted data
-            decrypted_packet = WePowerEncryptedData(decrypted_data)
+            decrypted_packet = GemnsEncryptedData(decrypted_data)
             
             _LOGGER.info("🔍 DECRYPTED DATA ANALYSIS:")
             _LOGGER.info("  Decrypted data length: %d", len(decrypted_data))
@@ -248,10 +248,10 @@ class WePowerPacket:
         
         return sensor_data
 
-def parse_wepower_packet(manufacturer_data: bytes, decryption_key: Optional[bytes] = None) -> Optional[Dict[str, Any]]:
+def parse_gemns_packet(manufacturer_data: bytes, decryption_key: Optional[bytes] = None) -> Optional[Dict[str, Any]]:
     """Parse Gemns™ packet from manufacturer data."""
     try:
-        packet = WePowerPacket(manufacturer_data)
+        packet = GemnsPacket(manufacturer_data)
         
         if not packet.is_valid_company_id():
             return None

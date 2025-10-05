@@ -26,14 +26,14 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.event import async_track_time_interval
 
 from .const import DOMAIN, BLE_COMPANY_ID, CONF_DECRYPTION_KEY, CONF_ADDRESS
-from .packet_parser import parse_wepower_packet
+from .packet_parser import parse_gemns_packet
 
 _LOGGER = logging.getLogger(__name__)
 
 FALLBACK_POLL_INTERVAL = timedelta(seconds=10)
 
 
-class WePowerIoTBluetoothProcessorCoordinator(
+class GemnsIoTBluetoothProcessorCoordinator(
     PassiveBluetoothDataUpdateCoordinator
 ):
     """Coordinator for Gemns™ IoT Bluetooth devices."""
@@ -56,7 +56,7 @@ class WePowerIoTBluetoothProcessorCoordinator(
             address = real_address.upper()
             _LOGGER.info("🎯 Using real MAC address: %s", address)
         else:
-            address = f"wepower_discovery_{entry.entry_id}"
+            address = f"gemns_discovery_{entry.entry_id}"
             _LOGGER.info("🔍 Using discovery identifier: %s", address)
         
         assert address is not None
@@ -75,7 +75,7 @@ class WePowerIoTBluetoothProcessorCoordinator(
         _LOGGER.info("🔍 Coordinator async_init with address: %s", self.address)
         
         # If we're using discovery identifier, try to discover devices
-        if self.address.startswith("wepower_discovery_"):
+        if self.address.startswith("gemns_discovery_"):
             _LOGGER.warning("Using discovery identifier, will discover real device")
             await self._discover_and_update_address()
             return
@@ -161,15 +161,15 @@ class WePowerIoTBluetoothProcessorCoordinator(
                 _LOGGER.info("🏭 MANUFACTURER: %s | ID: 0x%04X | Data: %s", 
                             self.address, manufacturer_id, manufacturer_data.hex())
                 if manufacturer_id == BLE_COMPANY_ID:  # Gemns™ manufacturer ID (0x5750)
-                    _LOGGER.info("✅ WEPOWER DEVICE DETECTED: %s | Parsing data...", self.address)
-                    parsed_data = self._parse_wepower_manufacturer_data(manufacturer_data)
+                    _LOGGER.info("✅ GEMNS DEVICE DETECTED: %s | Parsing data...", self.address)
+                    parsed_data = self._parse_gemns_manufacturer_data(manufacturer_data)
                     if parsed_data:
                         data.update(parsed_data)
-                        _LOGGER.info("🎯 WEPOWER DATA PARSED: %s | Result: %s", self.address, parsed_data)
+                        _LOGGER.info("🎯 GEMNS DATA PARSED: %s | Result: %s", self.address, parsed_data)
                     else:
-                        _LOGGER.warning("⚠️ WEPOWER PARSE FAILED: %s | Data: %s", self.address, manufacturer_data.hex())
+                        _LOGGER.warning("⚠️ GEMNS PARSE FAILED: %s | Data: %s", self.address, manufacturer_data.hex())
                 else:
-                    _LOGGER.debug("❌ NON-WEPOWER: %s | ID: 0x%04X", self.address, manufacturer_id)
+                    _LOGGER.debug("❌ NON-GEMNS: %s | ID: 0x%04X", self.address, manufacturer_id)
         else:
             _LOGGER.warning("⚠️ NO MANUFACTURER DATA: %s", self.address)
         
@@ -218,9 +218,9 @@ class WePowerIoTBluetoothProcessorCoordinator(
         
         return data
 
-    def _parse_wepower_manufacturer_data(self, data: bytes) -> dict[str, Any]:
+    def _parse_gemns_manufacturer_data(self, data: bytes) -> dict[str, Any]:
         """Parse Gemns™ IoT manufacturer data using 18-byte packet format."""
-        _LOGGER.info("🔐 PARSING WEPOWER DATA: Length=%d | Data=%s", len(data), data.hex())
+        _LOGGER.info("🔐 PARSING GEMNS DATA: Length=%d | Data=%s", len(data), data.hex())
         
         if len(data) < 18:  # Gemns™ packet format is 18 bytes
             _LOGGER.warning("⚠️ INVALID PACKET LENGTH: %d bytes (expected 18)", len(data))
@@ -264,7 +264,7 @@ class WePowerIoTBluetoothProcessorCoordinator(
         _LOGGER.info("📦 CALLING PACKET PARSER: packet_data=%s, key=%s", 
                     data.hex(), decryption_key.hex() if decryption_key else "None")
         
-        parsed_packet = parse_wepower_packet(data, decryption_key)
+        parsed_packet = parse_gemns_packet(data, decryption_key)
         
         if not parsed_packet:
             _LOGGER.error("🔴 PACKET PARSER RETURNED EMPTY RESULT")
@@ -331,7 +331,7 @@ class WePowerIoTBluetoothProcessorCoordinator(
             _LOGGER.info("🔍 Found %d total Bluetooth devices", len(discovered_devices))
             for device in discovered_devices:
                 _LOGGER.info("🔍 Checking device: %s (%s)", device.name, device.address)
-                if self._is_wepower_device(device):
+                if self._is_gemns_device(device):
                     _LOGGER.info("🎯 Found Gemns™ device: %s (%s)", device.name, device.address)
                     # Update the config entry with the real MAC address
                     new_data = self._entry.data.copy()
@@ -355,11 +355,11 @@ class WePowerIoTBluetoothProcessorCoordinator(
     async def _schedule_next_discovery(self) -> None:
         """Schedule the next discovery attempt."""
         await asyncio.sleep(5)  # Wait 5 seconds
-        if self.address.startswith("wepower_discovery_"):
+        if self.address.startswith("gemns_discovery_"):
             _LOGGER.info("🔄 Retrying discovery...")
             await self._discover_and_update_address()
     
-    def _is_wepower_device(self, discovery_info: BluetoothServiceInfo) -> bool:
+    def _is_gemns_device(self, discovery_info: BluetoothServiceInfo) -> bool:
         """Check if this is a Gemns™ IoT device."""
         # Check manufacturer data for Gemns™ Company ID (22352)
         if discovery_info.manufacturer_data:

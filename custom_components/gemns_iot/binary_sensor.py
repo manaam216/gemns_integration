@@ -44,18 +44,18 @@ async def async_setup_entry(
     entities = []
     
     # BLE Connection Status
-    ble_sensor = WePowerIoTBLESensor(device_manager)
+    ble_sensor = GemnsIoTBLESensor(device_manager)
     entities.append(ble_sensor)
     
     # Zigbee Connection Status
-    zigbee_sensor = WePowerIoTZigbeeSensor(device_manager)
+    zigbee_sensor = GemnsIoTZigbeeSensor(device_manager)
     entities.append(zigbee_sensor)
     
     if entities:
         async_add_entities(entities)
 
 
-class WePowerIoTBLESensor(BinarySensorEntity):
+class GemnsIoTBLESensor(BinarySensorEntity):
     """Representation of BLE connection status."""
 
     def __init__(self, device_manager):
@@ -74,8 +74,8 @@ class WePowerIoTBLESensor(BinarySensorEntity):
             manufacturer="Gemns™",
             model="BLE Dongle",
             sw_version="1.0.0",
-            configuration_url=f"https://github.com/wepower/wepower-iot-homeassistant",
-            image="/local/wepower_iot/ble_dongle.png",
+            configuration_url=f"https://github.com/gemns/gemns-iot-homeassistant",
+            image="/local/gemns_iot/ble_dongle.png",
         )
         
         # Set custom icon for BLE dongle
@@ -130,7 +130,7 @@ class WePowerIoTBLESensor(BinarySensorEntity):
         self._update_state()
 
 
-class WePowerIoTZigbeeSensor(BinarySensorEntity):
+class GemnsIoTZigbeeSensor(BinarySensorEntity):
     """Representation of Zigbee connection status."""
 
     def __init__(self, device_manager):
@@ -149,8 +149,8 @@ class WePowerIoTZigbeeSensor(BinarySensorEntity):
             manufacturer="Gemns™",
             model="Zigbee Dongle",
             sw_version="1.0.0",
-            configuration_url=f"https://github.com/wepower/wepower-iot-homeassistant",
-            image="/local/wepower_iot/zigbee_dongle.png",
+            configuration_url=f"https://github.com/gemns/gemns-iot-homeassistant",
+            image="/local/gemns_iot/zigbee_dongle.png",
         )
         
         # Set custom icon for Zigbee dongle

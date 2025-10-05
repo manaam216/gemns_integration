@@ -69,7 +69,7 @@ async def async_setup_entry(
     # Create sensor entities
     entities = []
     for device in sensor_devices:
-        sensor_entity = WePowerIoTSensor(device_manager, device)
+        sensor_entity = GemnsIoTSensor(device_manager, device)
         entities.append(sensor_entity)
         _entities.append(sensor_entity)
         
@@ -86,7 +86,7 @@ async def async_setup_entry(
             
             if not existing_entity:
                 # Create new entity
-                new_entity = WePowerIoTSensor(device_manager, device_data)
+                new_entity = GemnsIoTSensor(device_manager, device_data)
                 _entities.append(new_entity)
                 _add_entities_callback([new_entity])
                 _LOGGER.info(f"Created new sensor entity for device: {device_id}")
@@ -95,7 +95,7 @@ async def async_setup_entry(
     async_dispatcher_connect(hass, SIGNAL_DEVICE_ADDED, handle_new_device)
 
 
-class WePowerIoTSensor(SensorEntity):
+class GemnsIoTSensor(SensorEntity):
     """Representation of a Gemns™ IoT sensor."""
 
     def __init__(self, device_manager, device: Dict[str, Any]):

@@ -11,7 +11,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
 
 from .const import DOMAIN, CONF_ADDRESS
-from .ble_coordinator import WePowerIoTBluetoothProcessorCoordinator
+from .ble_coordinator import GemnsIoTBluetoothProcessorCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -45,19 +45,19 @@ async def async_setup_entry(
     entities = []
     
     # Create a switch entity for switch devices
-    switch_entity = WePowerIoTBLESwitch(coordinator, config_entry)
+    switch_entity = GemnsIoTBLESwitch(coordinator, config_entry)
     entities.append(switch_entity)
     
     if entities:
         async_add_entities(entities)
 
 
-class WePowerIoTBLESwitch(SwitchEntity):
+class GemnsIoTBLESwitch(SwitchEntity):
     """Representation of a Gemns™ IoT BLE switch."""
 
     def __init__(
         self,
-        coordinator: WePowerIoTBluetoothProcessorCoordinator,
+        coordinator: GemnsIoTBluetoothProcessorCoordinator,
         config_entry: ConfigEntry,
     ) -> None:
         """Initialize the BLE switch."""
@@ -267,13 +267,13 @@ class WePowerIoTBLESwitch(SwitchEntity):
         """Get device image URL based on device type."""
         # Map device types to their corresponding images
         image_map = {
-            "on_off_switch": "/local/wepower_iot/switch.png",
-            "light_switch": "/local/wepower_iot/light_switch.png",
-            "door_switch": "/local/wepower_iot/door_sensor.png",
-            "toggle_switch": "/local/wepower_iot/toggle_switch.png",
+            "on_off_switch": "/local/gemns_iot/switch.png",
+            "light_switch": "/local/gemns_iot/light_switch.png",
+            "door_switch": "/local/gemns_iot/door_sensor.png",
+            "toggle_switch": "/local/gemns_iot/toggle_switch.png",
         }
         
-        return image_map.get(device_type.lower(), "/local/wepower_iot/switch.png")
+        return image_map.get(device_type.lower(), "/local/gemns_iot/switch.png")
             
     def _extract_switch_value(self, data: Dict[str, Any]) -> None:
         """Extract switch value from coordinator data."""

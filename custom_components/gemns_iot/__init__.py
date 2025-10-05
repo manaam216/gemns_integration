@@ -9,9 +9,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import service
 
 from .const import DOMAIN
-from .device_management import WePowerIoTDeviceManager
-from .coordinator import WePowerIoTDataCoordinator
-from .ble_coordinator import WePowerIoTBluetoothProcessorCoordinator
+from .device_management import GemnsIoTDeviceManager
+from .coordinator import GemnsIoTDataCoordinator
+from .ble_coordinator import GemnsIoTBluetoothProcessorCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Check if this is a BLE device entry
     if entry.data.get("address"):
         # This is a BLE device entry
-        coordinator = WePowerIoTBluetoothProcessorCoordinator(hass, entry)
+        coordinator = GemnsIoTBluetoothProcessorCoordinator(hass, entry)
         try:
             await coordinator.async_init()
         except Exception as e:
@@ -58,11 +58,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     else:
         # This is a traditional MQTT-based entry
         # Create device manager
-        device_manager = WePowerIoTDeviceManager(hass, entry.data)
+        device_manager = GemnsIoTDeviceManager(hass, entry.data)
         await device_manager.start()
         
         # Create coordinator
-        coordinator = WePowerIoTDataCoordinator(hass, device_manager)
+        coordinator = GemnsIoTDataCoordinator(hass, device_manager)
         await coordinator.async_setup()
         
         # Store device manager and coordinator in hass data
@@ -104,7 +104,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return unload_ok
 
 
-async def _register_services(hass: HomeAssistant, device_manager: WePowerIoTDeviceManager):
+async def _register_services(hass: HomeAssistant, device_manager: GemnsIoTDeviceManager):
     """Register Gemns IoT services."""
     
     async def add_device(service_call):

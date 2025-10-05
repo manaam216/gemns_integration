@@ -1,7 +1,7 @@
 """Constants for the Gemns™ IoT integration."""
 from typing import Final
 
-DOMAIN: Final = "wepower_iot"
+DOMAIN: Final = "gemns_iot"
 
 # Configuration keys
 CONF_MQTT_BROKER: Final = "mqtt_broker"
@@ -18,9 +18,9 @@ DEFAULT_HEARTBEAT_INTERVAL: Final = 10.0
 DEFAULT_ENABLE_ZIGBEE: Final = True
 
 # MQTT Topics
-MQTT_TOPIC_STATUS: Final = "wepower_iot/status"
-MQTT_TOPIC_CONTROL: Final = "wepower_iot/control"
-MQTT_TOPIC_DEVICE: Final = "wepower_iot/device"
+MQTT_TOPIC_STATUS: Final = "gemns_iot/status"
+MQTT_TOPIC_CONTROL: Final = "gemns_iot/control"
+MQTT_TOPIC_DEVICE: Final = "gemns_iot/device"
 
 # Device types
 DEVICE_TYPE_BLE: Final = "ble"

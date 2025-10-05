@@ -25,7 +25,7 @@ from homeassistant.const import (
 )
 
 from .const import DOMAIN, CONF_ADDRESS, CONF_NAME
-from .ble_coordinator import WePowerIoTBluetoothProcessorCoordinator
+from .ble_coordinator import GemnsIoTBluetoothProcessorCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ async def async_setup_entry(
         address = config_entry.unique_id
     
     # If still no address, skip BLE sensor setup
-    if not address or address.startswith("wepower_temp_") or address.startswith("wepower_discovery_"):
+    if not address or address.startswith("gemns_temp_") or address.startswith("gemns_discovery_"):
         _LOGGER.info("No real BLE device address found, skipping BLE sensor setup for entry %s", config_entry.entry_id)
         return
     
@@ -75,49 +75,49 @@ async def async_setup_entry(
     # Create entities based on device type (matching device_type_t enum)
     if device_type in ["leak_sensor"] or sensor_type == 4:
         # DEVICE_TYPE_LEAK_SENSOR = 4 - create binary sensor only
-        from .ble_binary_sensor import WePowerIoTBLEBinarySensor
-        binary_sensor_entity = WePowerIoTBLEBinarySensor(coordinator, config_entry)
+        from .ble_binary_sensor import GemnsIoTBLEBinarySensor
+        binary_sensor_entity = GemnsIoTBLEBinarySensor(coordinator, config_entry)
         entities.append(binary_sensor_entity)
         _LOGGER.info("Created binary sensor entity for leak sensor")
         
     elif device_type in ["vibration_sensor"] or sensor_type == 2:
         # DEVICE_TYPE_VIBRATION_MONITOR = 2 - create binary sensor only
-        from .ble_binary_sensor import WePowerIoTBLEBinarySensor
-        binary_sensor_entity = WePowerIoTBLEBinarySensor(coordinator, config_entry)
+        from .ble_binary_sensor import GemnsIoTBLEBinarySensor
+        binary_sensor_entity = GemnsIoTBLEBinarySensor(coordinator, config_entry)
         entities.append(binary_sensor_entity)
         _LOGGER.info("Created binary sensor entity for vibration monitor")
         
     elif device_type in ["two_way_switch"] or sensor_type == 3:
         # DEVICE_TYPE_TWO_WAY_SWITCH = 3 - create binary sensor only
-        from .ble_binary_sensor import WePowerIoTBLEBinarySensor
-        binary_sensor_entity = WePowerIoTBLEBinarySensor(coordinator, config_entry)
+        from .ble_binary_sensor import GemnsIoTBLEBinarySensor
+        binary_sensor_entity = GemnsIoTBLEBinarySensor(coordinator, config_entry)
         entities.append(binary_sensor_entity)
         _LOGGER.info("Created binary sensor entity for two-way switch")
         
     elif device_type in ["button", "legacy"] or sensor_type in [0, 1]:
         # DEVICE_TYPE_LEGACY = 0, DEVICE_TYPE_BUTTON = 1 - create binary sensor only
-        from .ble_binary_sensor import WePowerIoTBLEBinarySensor
-        binary_sensor_entity = WePowerIoTBLEBinarySensor(coordinator, config_entry)
+        from .ble_binary_sensor import GemnsIoTBLEBinarySensor
+        binary_sensor_entity = GemnsIoTBLEBinarySensor(coordinator, config_entry)
         entities.append(binary_sensor_entity)
         _LOGGER.info("Created binary sensor entity for button/legacy device")
         
     else:
         # Unknown device type - create binary sensor (fallback)
         _LOGGER.warning("Unknown device type %s, creating binary sensor", device_type)
-        from .ble_binary_sensor import WePowerIoTBLEBinarySensor
-        binary_sensor_entity = WePowerIoTBLEBinarySensor(coordinator, config_entry)
+        from .ble_binary_sensor import GemnsIoTBLEBinarySensor
+        binary_sensor_entity = GemnsIoTBLEBinarySensor(coordinator, config_entry)
         entities.append(binary_sensor_entity)
     
     if entities:
         async_add_entities(entities)
 
 
-class WePowerIoTBLESensor(SensorEntity):
+class GemnsIoTBLESensor(SensorEntity):
     """Representation of a Gemns™ IoT BLE sensor."""
 
     def __init__(
         self,
-        coordinator: WePowerIoTBluetoothProcessorCoordinator,
+        coordinator: GemnsIoTBluetoothProcessorCoordinator,
         config_entry: ConfigEntry,
     ) -> None:
         """Initialize the BLE sensor."""
@@ -336,18 +336,18 @@ class WePowerIoTBLESensor(SensorEntity):
         """Get device image URL based on device type."""
         # Map device types to their corresponding images
         image_map = {
-            "temperature_sensor": "/local/wepower_iot/temperature_sensor.png",
-            "humidity_sensor": "/local/wepower_iot/humidity_sensor.png",
-            "pressure_sensor": "/local/wepower_iot/pressure_sensor.png",
-            "vibration_sensor": "/local/wepower_iot/vibration_sensor.png",
-            "leak_sensor": "/local/wepower_iot/leak_sensor.png",
-            "on_off_switch": "/local/wepower_iot/switch.png",
-            "light_switch": "/local/wepower_iot/light_switch.png",
-            "door_switch": "/local/wepower_iot/door_sensor.png",
-            "toggle_switch": "/local/wepower_iot/toggle_switch.png",
+            "temperature_sensor": "/local/gemns_iot/temperature_sensor.png",
+            "humidity_sensor": "/local/gemns_iot/humidity_sensor.png",
+            "pressure_sensor": "/local/gemns_iot/pressure_sensor.png",
+            "vibration_sensor": "/local/gemns_iot/vibration_sensor.png",
+            "leak_sensor": "/local/gemns_iot/leak_sensor.png",
+            "on_off_switch": "/local/gemns_iot/switch.png",
+            "light_switch": "/local/gemns_iot/light_switch.png",
+            "door_switch": "/local/gemns_iot/door_sensor.png",
+            "toggle_switch": "/local/gemns_iot/toggle_switch.png",
         }
         
-        return image_map.get(device_type.lower(), "/local/wepower_iot/iot_sensor.png")
+        return image_map.get(device_type.lower(), "/local/gemns_iot/iot_sensor.png")
             
     def _extract_sensor_value(self, data: Dict[str, Any]) -> None:
         """Extract sensor value from coordinator data."""

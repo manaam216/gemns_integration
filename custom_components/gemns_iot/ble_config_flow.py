@@ -48,7 +48,7 @@ STEP_DISCOVERY_DATA_SCHEMA = vol.Schema(
 )
 
 
-class WePowerIoTBluetoothConfigFlow(ConfigFlow, domain=DOMAIN):
+class GemnsIoTBluetoothConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Gemns™ IoT BLE."""
 
     VERSION = 1
@@ -105,7 +105,7 @@ class WePowerIoTBluetoothConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=STEP_USER_DATA_SCHEMA,
             description_placeholders={
                 "message": "Manually provision a Gemns™ IoT device by entering its MAC address and decryption key.\n\nSensor Types:\n• Type 1: Temperature Sensor\n• Type 2: Humidity Sensor\n• Type 3: Pressure Sensor\n• Type 4: Leak Sensor (Default)\n\nDecryption Key: 32-character hex string (16 bytes)",
-                "integration_icon": "/local/wepower_iot/icon.png"
+                "integration_icon": "/local/gemns_iot/icon.png"
             }
         )
 
@@ -118,7 +118,7 @@ class WePowerIoTBluetoothConfigFlow(ConfigFlow, domain=DOMAIN):
         self._abort_if_unique_id_configured()
         
         # Check if this looks like a Gemns™ IoT device
-        if not self._is_wepower_device(discovery_info):
+        if not self._is_gemns_device(discovery_info):
             return self.async_abort(reason="not_supported")
         
         # Extract device type from beacon data for better discovery display
@@ -213,7 +213,7 @@ class WePowerIoTBluetoothConfigFlow(ConfigFlow, domain=DOMAIN):
                     "message": descriptions.get(device_type, descriptions["unknown"]),
                     "device_name": device_name,
                     "device_type": device_type.replace("_", " ").title(),
-                    "integration_icon": "/local/wepower_iot/icon.png"
+                    "integration_icon": "/local/gemns_iot/icon.png"
                 }
             )
         
@@ -247,7 +247,7 @@ class WePowerIoTBluetoothConfigFlow(ConfigFlow, domain=DOMAIN):
             },
         )
 
-    def _is_wepower_device(self, discovery_info: BluetoothServiceInfo) -> bool:
+    def _is_gemns_device(self, discovery_info: BluetoothServiceInfo) -> bool:
         """Check if this is a Gemns™ IoT device using new packet format."""
         # Check manufacturer data for new Company ID
         if discovery_info.manufacturer_data:
@@ -271,8 +271,8 @@ class WePowerIoTBluetoothConfigFlow(ConfigFlow, domain=DOMAIN):
                     if manufacturer_id == BLE_COMPANY_ID and len(data) >= 20:
                         # Try to parse the packet to get device type
                         try:
-                            from .packet_parser import WePowerPacket
-                            packet = WePowerPacket(data)
+                            from .packet_parser import GemnsPacket
+                            packet = GemnsPacket(data)
                             if packet.is_valid():
                                 sensor_type = packet.sensor_type
                                 

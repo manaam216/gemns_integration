@@ -29,7 +29,7 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
-class WePowerIoTConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class GemnsIoTConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Gemns™ IoT."""
 
     VERSION = 1
@@ -173,7 +173,7 @@ class WePowerIoTConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             
             # Generate a unique ID for this config entry
             # This will be used by the coordinator to identify the device
-            unique_id = f"wepower_ble_{device_name.lower().replace(' ', '_')}"
+            unique_id = f"gemns_ble_{device_name.lower().replace(' ', '_')}"
             address = "00:00:00:00:00:00"  # Placeholder - will be updated by Bluetooth integration
             name = "Gemns™ IoT Device"
             
@@ -207,7 +207,7 @@ class WePowerIoTConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             }),
             description_placeholders={
                 "message": "Gemns™ IoT BLE Setup\n\nEnter your decryption key to complete setup.\n\nThe MAC address will be automatically detected when your Gemns™ device is discovered.\n\nSensor Types:\n• Type 1: Temperature Sensor\n• Type 2: Humidity Sensor\n• Type 3: Pressure Sensor\n• Type 4: Leak Sensor (Default)\n\nDecryption Key: 32-character hex string (16 bytes)",
-                "integration_icon": "/local/wepower_iot/icon.png"
+                "integration_icon": "/local/gemns_iot/icon.png"
             }
         )
 

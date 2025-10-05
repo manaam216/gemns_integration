@@ -61,7 +61,7 @@ async def async_setup_entry(
     # Create light entities
     entities = []
     for device in light_devices:
-        light_entity = WePowerIoTLight(device_manager, device)
+        light_entity = GemnsIoTLight(device_manager, device)
         entities.append(light_entity)
         _entities.append(light_entity)
         
@@ -78,7 +78,7 @@ async def async_setup_entry(
             
             if not existing_entity:
                 # Create new entity
-                new_entity = WePowerIoTLight(device_manager, device_data)
+                new_entity = GemnsIoTLight(device_manager, device_data)
                 _entities.append(new_entity)
                 _add_entities_callback([new_entity])
                 _LOGGER.info(f"Created new light entity for device: {device_id}")
@@ -87,7 +87,7 @@ async def async_setup_entry(
     async_dispatcher_connect(hass, SIGNAL_DEVICE_ADDED, handle_new_device)
 
 
-class WePowerIoTLight(LightEntity):
+class GemnsIoTLight(LightEntity):
     """Representation of a Gemns™ IoT light."""
 
     def __init__(self, device_manager, device: Dict[str, Any]):
@@ -204,7 +204,7 @@ class WePowerIoTLight(LightEntity):
                 
             # Send command
             await self.device_manager.publish_mqtt(
-                f"wepower_iot/device/{self.device_id}/command",
+                f"gemns_iot/device/{self.device_id}/command",
                 json.dumps(turn_on_message)
             )
             
@@ -246,7 +246,7 @@ class WePowerIoTLight(LightEntity):
                 turn_off_message["transition"] = transition
                 
             await self.device_manager.publish_mqtt(
-                f"wepower_iot/device/{self.device_id}/command",
+                f"gemns_iot/device/{self.device_id}/command",
                 json.dumps(turn_off_message)
             )
             
