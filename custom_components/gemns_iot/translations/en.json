@@ -2,8 +2,8 @@
   "config": {
     "step": {
       "user": {
-        "title": "Gemns IoT Configuration",
-        "description": "Configure your Gemns IoT integration",
+        "title": "Gemns™ IoT Configuration",
+        "description": "Configure your Gemns™ IoT integration",
         "data": {
           "mqtt_broker": "MQTT Broker URL",
           "mqtt_username": "MQTT Username (optional)",
@@ -25,8 +25,8 @@
   "options": {
     "step": {
       "init": {
-        "title": "Gemns IoT Options",
-        "description": "Configure Gemns IoT options",
+        "title": "Gemns™ IoT Options",
+        "description": "Configure Gemns™ IoT options",
         "data": {
           "enable_ble": "Enable BLE",
           "enable_zigbee": "Enable Zigbee",
@@ -38,15 +38,15 @@
   },
   "entity": {
     "sensor": {
-      "gemns_iot_status": {
-        "name": "Gemns IoT Status"
+      "gemns_status": {
+        "name": "Gemns™ IoT Status"
       }
     },
     "binary_sensor": {
-      "gemns_iot_ble_connected": {
+      "gemns_ble_connected": {
         "name": "BLE Connected"
       },
-      "gemns_iot_zigbee_connected": {
+      "gemns_zigbee_connected": {
         "name": "Zigbee Connected"
       }
     }
