@@ -1,4 +1,4 @@
-"""Binary sensor platform for Gemns IoT integration."""
+"""Binary sensor platform for Gemns™ IoT integration."""
 
 import logging
 from typing import Any, Dict, Optional
@@ -33,7 +33,7 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up Gemns IoT binary sensors from a config entry."""
+    """Set up Gemns™ IoT binary sensors from a config entry."""
     
     # Get device manager
     device_manager = hass.data[DOMAIN][config_entry.entry_id].get("device_manager")
@@ -44,24 +44,24 @@ async def async_setup_entry(
     entities = []
     
     # BLE Connection Status
-    ble_sensor = GemnsIoTBLESensor(device_manager)
+    ble_sensor = GemnsBLESensor(device_manager)
     entities.append(ble_sensor)
     
     # Zigbee Connection Status
-    zigbee_sensor = GemnsIoTZigbeeSensor(device_manager)
+    zigbee_sensor = GemnsZigbeeSensor(device_manager)
     entities.append(zigbee_sensor)
     
     if entities:
         async_add_entities(entities)
 
 
-class GemnsIoTBLESensor(BinarySensorEntity):
+class GemnsBLESensor(BinarySensorEntity):
     """Representation of BLE connection status."""
 
     def __init__(self, device_manager):
         """Initialize the BLE sensor."""
         self.device_manager = device_manager
-        self._attr_name = "Gemns IoT BLE Connected"
+        self._attr_name = "Gemns™ IoT BLE Connected"
         self._attr_unique_id = f"{DOMAIN}_ble_connected"
         self._attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
         self._attr_icon = "mdi:bluetooth"
@@ -71,11 +71,11 @@ class GemnsIoTBLESensor(BinarySensorEntity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, "ble_dongle")},
             name="Gemns™ IoT BLE Dongle",
-            manufacturer="Gemns™",
+            manufacturer="Gemns™ IoT",
             model="BLE Dongle",
             sw_version="1.0.0",
-            configuration_url=f"https://github.com/gemns/gemns-iot-homeassistant",
-            image="/local/gemns_iot/ble_dongle.png",
+            configuration_url=f"https://github.com/gemns/gemns-homeassistant",
+            image="/local/gems/ble_dongle.png",
         )
         
         # Set custom icon for BLE dongle
@@ -130,13 +130,13 @@ class GemnsIoTBLESensor(BinarySensorEntity):
         self._update_state()
 
 
-class GemnsIoTZigbeeSensor(BinarySensorEntity):
+class GemnsZigbeeSensor(BinarySensorEntity):
     """Representation of Zigbee connection status."""
 
     def __init__(self, device_manager):
         """Initialize the Zigbee sensor."""
         self.device_manager = device_manager
-        self._attr_name = "Gemns IoT Zigbee Connected"
+        self._attr_name = "Gemns™ IoT Zigbee Connected"
         self._attr_unique_id = f"{DOMAIN}_zigbee_connected"
         self._attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
         self._attr_icon = "mdi:zigbee"
@@ -146,11 +146,11 @@ class GemnsIoTZigbeeSensor(BinarySensorEntity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, "zigbee_dongle")},
             name="Gemns™ IoT Zigbee Dongle",
-            manufacturer="Gemns™",
+            manufacturer="Gemns™ IoT",
             model="Zigbee Dongle",
             sw_version="1.0.0",
-            configuration_url=f"https://github.com/gemns/gemns-iot-homeassistant",
-            image="/local/gemns_iot/zigbee_dongle.png",
+            configuration_url=f"https://github.com/gemns/gemns-homeassistant",
+            image="/local/gems/zigbee_dongle.png",
         )
         
         # Set custom icon for Zigbee dongle
