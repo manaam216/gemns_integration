@@ -14,7 +14,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
 
 from .const import DOMAIN, CONF_ADDRESS, CONF_NAME
-from .ble_coordinator import GemnsIoTBluetoothProcessorCoordinator
+from .ble_coordinator import GemnsBluetoothProcessorCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -48,19 +48,19 @@ async def async_setup_entry(
     entities = []
     
     # Create a binary sensor entity for leak detection
-    binary_sensor_entity = GemnsIoTBLEBinarySensor(coordinator, config_entry)
+    binary_sensor_entity = GemnsBLEBinarySensor(coordinator, config_entry)
     entities.append(binary_sensor_entity)
     
     if entities:
         async_add_entities(entities)
 
 
-class GemnsIoTBLEBinarySensor(BinarySensorEntity):
+class GemnsBLEBinarySensor(BinarySensorEntity):
     """Representation of a Gemns™ IoT BLE binary sensor."""
 
     def __init__(
         self,
-        coordinator: GemnsIoTBluetoothProcessorCoordinator,
+        coordinator: GemnsBluetoothProcessorCoordinator,
         config_entry: ConfigEntry,
     ) -> None:
         """Initialize the BLE binary sensor."""
@@ -77,7 +77,7 @@ class GemnsIoTBLEBinarySensor(BinarySensorEntity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, config_entry.entry_id)},
             name=self._attr_name,
-            manufacturer="Gemns™",
+            manufacturer="Gemns™ IoT",
             model="Batteryless IoT Device",  # Generic model, will be updated
             sw_version="1.0.0",
         )
@@ -160,9 +160,10 @@ class GemnsIoTBLEBinarySensor(BinarySensorEntity):
     def _update_from_coordinator(self) -> None:
         """Update binary sensor state from coordinator data."""
         if not self.coordinator.data:
-            # For event-driven devices, stay available even without recent data
+            # Simple restart detection: if device exists but no data, default to off
             self._attr_available = True
-            _LOGGER.debug("BLE binary sensor %s: No coordinator data - normal for event-driven devices", self.address)
+            self._attr_is_on = False  # Default to off when device restarts
+            _LOGGER.debug("BLE binary sensor %s: No coordinator data - defaulting to off (restart scenario)", self.address)
             return
             
         data = self.coordinator.data
@@ -200,29 +201,29 @@ class GemnsIoTBLEBinarySensor(BinarySensorEntity):
         if device_type == "leak_sensor":
             # DEVICE_TYPE_LEAK_SENSOR = 4 - moisture device class
             self._attr_device_class = BinarySensorDeviceClass.MOISTURE
-            self._attr_name = f"Gemns™ Leak Sensor {self._get_professional_device_id()}"
+            self._attr_name = f"Gemns™ IoT Leak Sensor {self._get_professional_device_id()}"
             self._attr_icon = "mdi:water"
             
         elif device_type == "vibration_sensor":
             # DEVICE_TYPE_VIBRATION_MONITOR = 2 - vibration device class
             self._attr_device_class = BinarySensorDeviceClass.VIBRATION
-            self._attr_name = f"Gemns™ Vibration Monitor {self._get_professional_device_id()}"
+            self._attr_name = f"Gemns™ IoT Vibration Monitor {self._get_professional_device_id()}"
             self._attr_icon = "mdi:vibrate"
             
         elif device_type == "two_way_switch":
             # DEVICE_TYPE_TWO_WAY_SWITCH = 3 - opening device class (on/off)
             self._attr_device_class = BinarySensorDeviceClass.OPENING
-            self._attr_name = f"Gemns™ Two-Way Switch {self._get_professional_device_id()}"
+            self._attr_name = f"Gemns™ IoT Two-Way Switch {self._get_professional_device_id()}"
             self._attr_icon = "mdi:toggle-switch"
             
         elif device_type in ["button", "legacy"]:
             # DEVICE_TYPE_BUTTON = 1, DEVICE_TYPE_LEGACY = 0 - problem device class
             self._attr_device_class = BinarySensorDeviceClass.PROBLEM
             if device_type == "button":
-                self._attr_name = f"Gemns™ Button {self._get_professional_device_id()}"
+                self._attr_name = f"Gemns™ IoT Button {self._get_professional_device_id()}"
                 self._attr_icon = "mdi:gesture-tap-button"
             else:  # legacy
-                self._attr_name = f"Gemns™ Legacy Device {self._get_professional_device_id()}"
+                self._attr_name = f"Gemns™ IoT Legacy Device {self._get_professional_device_id()}"
                 self._attr_icon = "mdi:chip"
             
         else:
@@ -242,7 +243,7 @@ class GemnsIoTBLEBinarySensor(BinarySensorEntity):
             "vibration_sensor": "Batteryless Vibration Monitor", # DEVICE_TYPE_VIBRATION_MONITOR = 2
             "two_way_switch": "Batteryless Two-Way Switch",  # DEVICE_TYPE_TWO_WAY_SWITCH = 3
             "leak_sensor": "Batteryless Leak Sensor",        # DEVICE_TYPE_LEAK_SENSOR = 4
-            "unknown_device": "Unknown Batteryless IoT Device"
+            "unknown_device": "Batteryless IoT Device"
         }
         
         model = model_map.get(device_type, "IoT Sensor")
@@ -264,7 +265,7 @@ class GemnsIoTBLEBinarySensor(BinarySensorEntity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, self.config_entry.entry_id)},
             name=self._attr_name,
-            manufacturer="Gemns™",
+            manufacturer="Gemns™ IoT",
             model=model,
             sw_version="1.0.0",
             suggested_area=suggested_area,
@@ -299,14 +300,14 @@ class GemnsIoTBLEBinarySensor(BinarySensorEntity):
         """Get device image URL based on device type."""
         # Map device types to their corresponding images
         image_map = {
-            "leak_sensor": "/local/gemns_iot/leak_sensor.png",
-            "vibration_sensor": "/local/gemns_iot/vibration_sensor.png", 
-            "two_way_switch": "/local/gemns_iot/switch.png",
-            "button": "/local/gemns_iot/button.png",
-            "legacy": "/local/gemns_iot/legacy_device.png",
+            "leak_sensor": "/local/gems/leak_sensor.png",
+            "vibration_sensor": "/local/gems/vibration_sensor.png", 
+            "two_way_switch": "/local/gems/switch.png",
+            "button": "/local/gems/button.png",
+            "legacy": "/local/gems/legacy_device.png",
         }
         
-        return image_map.get(device_type.lower(), "/local/gemns_iot/iot_device.png")
+        return image_map.get(device_type.lower(), "/local/gems/iot_device.png")
             
     def _extract_binary_sensor_value(self, data: Dict[str, Any]) -> None:
         """Extract binary sensor value from coordinator data."""
