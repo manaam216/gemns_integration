@@ -61,7 +61,7 @@ async def async_setup_entry(
     # Create light entities
     entities = []
     for device in light_devices:
-        light_entity = GemnsIoTLight(device_manager, device)
+        light_entity = GemnsLight(device_manager, device)
         entities.append(light_entity)
         _entities.append(light_entity)
         
@@ -78,7 +78,7 @@ async def async_setup_entry(
             
             if not existing_entity:
                 # Create new entity
-                new_entity = GemnsIoTLight(device_manager, device_data)
+                new_entity = GemnsLight(device_manager, device_data)
                 _entities.append(new_entity)
                 _add_entities_callback([new_entity])
                 _LOGGER.info(f"Created new light entity for device: {device_id}")
@@ -87,7 +87,7 @@ async def async_setup_entry(
     async_dispatcher_connect(hass, SIGNAL_DEVICE_ADDED, handle_new_device)
 
 
-class GemnsIoTLight(LightEntity):
+class GemnsLight(LightEntity):
     """Representation of a Gemns™ IoT light."""
 
     def __init__(self, device_manager, device: Dict[str, Any]):
@@ -103,7 +103,7 @@ class GemnsIoTLight(LightEntity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, self.device_id)},
             name=self._attr_name,
-            manufacturer="Gemns™",
+            manufacturer="Gemns™ IoT",
             model=device.get("device_type", "Unknown"),
             sw_version=device.get("firmware_version", "1.0.0"),
         )
@@ -204,7 +204,7 @@ class GemnsIoTLight(LightEntity):
                 
             # Send command
             await self.device_manager.publish_mqtt(
-                f"gemns_iot/device/{self.device_id}/command",
+                f"gemns/device/{self.device_id}/command",
                 json.dumps(turn_on_message)
             )
             
@@ -246,7 +246,7 @@ class GemnsIoTLight(LightEntity):
                 turn_off_message["transition"] = transition
                 
             await self.device_manager.publish_mqtt(
-                f"gemns_iot/device/{self.device_id}/command",
+                f"gemns/device/{self.device_id}/command",
                 json.dumps(turn_off_message)
             )
             

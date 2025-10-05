@@ -26,14 +26,14 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.event import async_track_time_interval
 
 from .const import DOMAIN, BLE_COMPANY_ID, CONF_DECRYPTION_KEY, CONF_ADDRESS
-from .packet_parser import parse_gemns_packet
+from .packet_parser import parse_gems_packet
 
 _LOGGER = logging.getLogger(__name__)
 
 FALLBACK_POLL_INTERVAL = timedelta(seconds=10)
 
 
-class GemnsIoTBluetoothProcessorCoordinator(
+class GemnsBluetoothProcessorCoordinator(
     PassiveBluetoothDataUpdateCoordinator
 ):
     """Coordinator for Gemns™ IoT Bluetooth devices."""
@@ -107,8 +107,8 @@ class GemnsIoTBluetoothProcessorCoordinator(
     
     @property
     def available(self) -> bool:
-        """Return if coordinator is available - always True for event-driven devices."""
-        # For event-driven devices, always consider available even without recent data
+        """Return if coordinator is available."""
+        # Always available - just track if we have recent data
         return True
 
     @callback
@@ -160,69 +160,69 @@ class GemnsIoTBluetoothProcessorCoordinator(
             for manufacturer_id, manufacturer_data in service_info.manufacturer_data.items():
                 _LOGGER.info("🏭 MANUFACTURER: %s | ID: 0x%04X | Data: %s", 
                             self.address, manufacturer_id, manufacturer_data.hex())
-                if manufacturer_id == BLE_COMPANY_ID:  # Gemns™ manufacturer ID (0x5750)
-                    _LOGGER.info("✅ GEMNS DEVICE DETECTED: %s | Parsing data...", self.address)
-                    parsed_data = self._parse_gemns_manufacturer_data(manufacturer_data)
+                if manufacturer_id == BLE_COMPANY_ID:  # Gemns™ IoT manufacturer ID (0x5750)
+                    _LOGGER.info("✅ GEMNS™ IOT DEVICE DETECTED: %s | Parsing data...", self.address)
+                    parsed_data = self._parse_gems_manufacturer_data(manufacturer_data)
                     if parsed_data:
                         data.update(parsed_data)
-                        _LOGGER.info("🎯 GEMNS DATA PARSED: %s | Result: %s", self.address, parsed_data)
+                        _LOGGER.info("🎯 GEMNS™ IOT DATA PARSED: %s | Result: %s", self.address, parsed_data)
                     else:
-                        _LOGGER.warning("⚠️ GEMNS PARSE FAILED: %s | Data: %s", self.address, manufacturer_data.hex())
+                        _LOGGER.warning("⚠️ GEMNS™ IOT PARSE FAILED: %s | Data: %s", self.address, manufacturer_data.hex())
                 else:
-                    _LOGGER.debug("❌ NON-GEMNS: %s | ID: 0x%04X", self.address, manufacturer_id)
+                    _LOGGER.debug("❌ NON-GEMNS™ IOT: %s | ID: 0x%04X", self.address, manufacturer_id)
         else:
             _LOGGER.warning("⚠️ NO MANUFACTURER DATA: %s", self.address)
         
         # Determine device type based on sensor type
-        if 'sensor_data' in data and 'sensor_type' in data['sensor_data']:
-            sensor_type = data['sensor_data']['sensor_type']
-            _LOGGER.info("🔍 SENSOR TYPE DETECTION: sensor_type=%d (0x%04X)", sensor_type, sensor_type)
-            if sensor_type == 1:
-                data["device_type"] = "temperature_sensor"
-                data["name"] = f"Gemns™ Temperature Sensor {professional_id}"
-                _LOGGER.info("  ✅ Identified as: temperature_sensor")
-            elif sensor_type == 2:
-                data["device_type"] = "humidity_sensor"
-                data["name"] = f"Gemns™ Humidity Sensor {professional_id}"
-                _LOGGER.info("  ✅ Identified as: humidity_sensor")
-            elif sensor_type == 3:
-                data["device_type"] = "pressure_sensor"
-                data["name"] = f"Gemns™ Pressure Sensor {professional_id}"
-                _LOGGER.info("  ✅ Identified as: pressure_sensor")
-            elif sensor_type == 4:
-                data["device_type"] = "leak_sensor"
-                data["name"] = f"Gemns™ Leak Sensor {professional_id}"
-                _LOGGER.info("  ✅ Identified as: leak_sensor")
-            elif sensor_type == 5:
+        if 'sensor_data' in data and 'device_type' in data['sensor_data']:
+            device_type = data['sensor_data']['device_type']
+            _LOGGER.info("🔍 DEVICE TYPE DETECTION: device_type=%d (0x%04X)", device_type, device_type)
+            if device_type == 1:
+                data["device_type"] = "button"
+                data["name"] = f"Gemns™ IoT Button {professional_id}"
+                _LOGGER.info("  ✅ Identified as: button")
+            elif device_type == 2:
                 data["device_type"] = "vibration_sensor"
-                data["name"] = f"Gemns™ Vibration Sensor {professional_id}"
+                data["name"] = f"Gemns™ IoT Vibration Monitor {professional_id}"
                 _LOGGER.info("  ✅ Identified as: vibration_sensor")
-            elif sensor_type == 6:
+            elif device_type == 3:
+                data["device_type"] = "two_way_switch"
+                data["name"] = f"Gemns™ IoT Two Way Switch {professional_id}"
+                _LOGGER.info("  ✅ Identified as: two_way_switch")
+            elif device_type == 4:
+                data["device_type"] = "leak_sensor"
+                data["name"] = f"Gemns™ IoT Leak Sensor {professional_id}"
+                _LOGGER.info("  ✅ Identified as: leak_sensor")
+            elif device_type == 5:
+                data["device_type"] = "vibration_sensor"
+                data["name"] = f"Gemns™ IoT Vibration Sensor {professional_id}"
+                _LOGGER.info("  ✅ Identified as: vibration_sensor")
+            elif device_type == 6:
                 data["device_type"] = "on_off_switch"
-                data["name"] = f"Gemns™ On/Off Switch {professional_id}"
+                data["name"] = f"Gemns™ IoT On/Off Switch {professional_id}"
                 _LOGGER.info("  ✅ Identified as: on_off_switch")
-            elif sensor_type == 7:
+            elif device_type == 7:
                 data["device_type"] = "light_switch"
-                data["name"] = f"Gemns™ Light Switch {professional_id}"
+                data["name"] = f"Gemns™ IoT Light Switch {professional_id}"
                 _LOGGER.info("  ✅ Identified as: light_switch")
-            elif sensor_type == 8:
+            elif device_type == 8:
                 data["device_type"] = "door_switch"
-                data["name"] = f"Gemns™ Door Switch {professional_id}"
+                data["name"] = f"Gemns™ IoT Door Switch {professional_id}"
                 _LOGGER.info("  ✅ Identified as: door_switch")
-            elif sensor_type == 9:
+            elif device_type == 9:
                 data["device_type"] = "toggle_switch"
-                data["name"] = f"Gemns™ Toggle Switch {professional_id}"
+                data["name"] = f"Gemns™ IoT Toggle Switch {professional_id}"
                 _LOGGER.info("  ✅ Identified as: toggle_switch")
             else:
-                _LOGGER.warning("  ⚠️ Unknown sensor type: %d (0x%04X)", sensor_type, sensor_type)
+                _LOGGER.warning("  ⚠️ Unknown device type: %d (0x%04X)", device_type, device_type)
         
         return data
 
-    def _parse_gemns_manufacturer_data(self, data: bytes) -> dict[str, Any]:
+    def _parse_gems_manufacturer_data(self, data: bytes) -> dict[str, Any]:
         """Parse Gemns™ IoT manufacturer data using 18-byte packet format."""
         _LOGGER.info("🔐 PARSING GEMNS DATA: Length=%d | Data=%s", len(data), data.hex())
         
-        if len(data) < 18:  # Gemns™ packet format is 18 bytes
+        if len(data) < 18:  # Gemns™ IoT packet format is 18 bytes
             _LOGGER.warning("⚠️ INVALID PACKET LENGTH: %d bytes (expected 18)", len(data))
             return {}
         
@@ -236,7 +236,7 @@ class GemnsIoTBluetoothProcessorCoordinator(
         
         try:
             # Company ID is already filtered by HA BLE driver (0x5750)
-            company_id = 0x5750  # Gemns™ company ID (filtered by HA)
+            company_id = 0x5750  # Gemns™ IoT company ID (filtered by HA)
             flags = data[0]  # 1 byte
             encrypted_data = data[1:17]  # 16 bytes (positions 1-16)
             crc = data[17]  # 1 byte (position 17, last byte)
@@ -264,7 +264,7 @@ class GemnsIoTBluetoothProcessorCoordinator(
         _LOGGER.info("📦 CALLING PACKET PARSER: packet_data=%s, key=%s", 
                     data.hex(), decryption_key.hex() if decryption_key else "None")
         
-        parsed_packet = parse_gemns_packet(data, decryption_key)
+        parsed_packet = parse_gems_packet(data, decryption_key)
         
         if not parsed_packet:
             _LOGGER.error("🔴 PACKET PARSER RETURNED EMPTY RESULT")
@@ -312,27 +312,27 @@ class GemnsIoTBluetoothProcessorCoordinator(
     @callback
     def _async_schedule_poll(self, _: datetime) -> None:
         """Schedule a poll of the device."""
-        # For event-driven devices, don't mark as unavailable due to lack of data
-        # These devices may only send data once per year
+        # Simple restart detection: if device exists but no data, default to off
         if self.data:
             self.last_update_success = True
             self.async_update_listeners()
         else:
-            # Keep as available even without recent data for event-driven devices
-            self.last_update_success = True
-            _LOGGER.debug("ℹ️ No recent data for %s - normal for event-driven devices", self.address)
+            # Device exists but no data (restart scenario) - keep available but no data
+            self.last_update_success = False
+            _LOGGER.debug("ℹ️ Device %s exists but no data - keeping available but no data (restart scenario)", self.address)
+            self.async_update_listeners()
     
     async def _discover_and_update_address(self) -> None:
-        """Discover Gemns™ devices and update the address if found."""
+        """Discover Gemns™ IoT devices and update the address if found."""
         try:
-            _LOGGER.info("🔍 Discovering Gemns™ devices...")
+            _LOGGER.info("🔍 Discovering Gemns™ IoT devices...")
             discovered_devices = async_discovered_service_info(self.hass)
             
             _LOGGER.info("🔍 Found %d total Bluetooth devices", len(discovered_devices))
             for device in discovered_devices:
                 _LOGGER.info("🔍 Checking device: %s (%s)", device.name, device.address)
-                if self._is_gemns_device(device):
-                    _LOGGER.info("🎯 Found Gemns™ device: %s (%s)", device.name, device.address)
+                if self._is_gems_device(device):
+                    _LOGGER.info("🎯 Found Gemns™ IoT device: %s (%s)", device.name, device.address)
                     # Update the config entry with the real MAC address
                     new_data = self._entry.data.copy()
                     new_data[CONF_ADDRESS] = device.address.upper()
@@ -343,7 +343,7 @@ class GemnsIoTBluetoothProcessorCoordinator(
                     await self._update_coordinator_address(device.address.upper())
                     break
             else:
-                _LOGGER.warning("⚠️ No Gemns™ devices found during discovery")
+                _LOGGER.warning("⚠️ No Gemns™ IoT devices found during discovery")
                 # Schedule another discovery attempt in 5 seconds
                 self.hass.async_create_task(self._schedule_next_discovery())
                 
@@ -359,21 +359,21 @@ class GemnsIoTBluetoothProcessorCoordinator(
             _LOGGER.info("🔄 Retrying discovery...")
             await self._discover_and_update_address()
     
-    def _is_gemns_device(self, discovery_info: BluetoothServiceInfo) -> bool:
+    def _is_gems_device(self, discovery_info: BluetoothServiceInfo) -> bool:
         """Check if this is a Gemns™ IoT device."""
-        # Check manufacturer data for Gemns™ Company ID (22352)
+        # Check manufacturer data for Gemns™ IoT Company ID (22352)
         if discovery_info.manufacturer_data:
             for manufacturer_id, data in discovery_info.manufacturer_data.items():
                 _LOGGER.info("🔍 Checking manufacturer data: Company ID %d, Data length: %d", manufacturer_id, len(data))
                 if manufacturer_id == BLE_COMPANY_ID and len(data) >= 20:
-                    _LOGGER.info("✅ Found Gemns™ device by manufacturer data")
+                    _LOGGER.info("✅ Found Gemns™ IoT device by manufacturer data")
                     return True
         
         # Check name patterns as fallback
         name = discovery_info.name or ""
         _LOGGER.info("🔍 Checking device name: '%s'", name)
-        if any(pattern in name.upper() for pattern in ["WEPOWER", "WP"]):
-            _LOGGER.info("✅ Found Gemns™ device by name pattern")
+        if any(pattern in name.upper() for pattern in ["GEMNS", "GEMS"]):
+            _LOGGER.info("✅ Found Gemns™ IoT device by name pattern")
             return True
         
         return False

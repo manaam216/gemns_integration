@@ -1,7 +1,7 @@
 """Constants for the Gemns™ IoT integration."""
 from typing import Final
 
-DOMAIN: Final = "gemns_iot"
+DOMAIN: Final = "gemns"
 
 # Configuration keys
 CONF_MQTT_BROKER: Final = "mqtt_broker"
@@ -18,9 +18,9 @@ DEFAULT_HEARTBEAT_INTERVAL: Final = 10.0
 DEFAULT_ENABLE_ZIGBEE: Final = True
 
 # MQTT Topics
-MQTT_TOPIC_STATUS: Final = "gemns_iot/status"
-MQTT_TOPIC_CONTROL: Final = "gemns_iot/control"
-MQTT_TOPIC_DEVICE: Final = "gemns_iot/device"
+MQTT_TOPIC_STATUS: Final = "gemns/status"
+MQTT_TOPIC_CONTROL: Final = "gemns/control"
+MQTT_TOPIC_DEVICE: Final = "gemns/device"
 
 # Device types
 DEVICE_TYPE_BLE: Final = "ble"
@@ -51,10 +51,10 @@ BLE_DISCOVERY_MODE_V1_AUTO: Final = "v1_auto"
 
 # Integration name and version
 INTEGRATION_NAME: Final = "Gemns™ IoT"
-INTEGRATION_VERSION: Final = "1.0.101"
+INTEGRATION_VERSION: Final = "1.0.1"
 
 # BLE Packet Format Constants
-BLE_COMPANY_ID: Final = 0x5750  # Gemns™ company ID
+BLE_COMPANY_ID: Final = 0x5750  # Gemns™ IoT company ID
 BLE_PACKET_LENGTH: Final = 20
 BLE_ENCRYPTED_DATA_SIZE: Final = 16
 
@@ -63,7 +63,7 @@ CONF_ADDRESS: Final = "address"
 CONF_NAME: Final = "name"
 CONF_DECRYPTION_KEY: Final = "decryption_key"
 CONF_DEVICE_NAME: Final = "device_name"
-CONF_SENSOR_TYPE: Final = "sensor_type"
+CONF_DEVICE_TYPE: Final = "device_type"
 
 # Sensor Types
 SENSOR_TYPE_LEAK: Final = 4
@@ -81,5 +81,3 @@ SWITCH_TYPE_TOGGLE: Final = 9
 # Signals
 SIGNAL_DEVICE_UPDATED: Final = f"{DOMAIN}_device_updated"
 SIGNAL_DEVICE_ADDED: Final = f"{DOMAIN}_device_added"
-
-

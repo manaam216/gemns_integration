@@ -25,7 +25,7 @@ from homeassistant.const import (
 )
 
 from .const import DOMAIN, CONF_ADDRESS, CONF_NAME
-from .ble_coordinator import GemnsIoTBluetoothProcessorCoordinator
+from .ble_coordinator import GemnsBluetoothProcessorCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -68,56 +68,56 @@ async def async_setup_entry(
     
     # Get device type from config to determine which entities to create
     device_type = config_entry.data.get("device_name", "unknown")
-    sensor_type = config_entry.data.get("sensor_type", 4)
+    device_type = config_entry.data.get("device_type", 4)
     
-    _LOGGER.info("Creating entities for device type: %s, sensor_type: %d", device_type, sensor_type)
+    _LOGGER.info("Creating entities for device type: %s, device_type: %d", device_type, device_type)
     
     # Create entities based on device type (matching device_type_t enum)
-    if device_type in ["leak_sensor"] or sensor_type == 4:
+    if device_type in ["leak_sensor"] or device_type == 4:
         # DEVICE_TYPE_LEAK_SENSOR = 4 - create binary sensor only
-        from .ble_binary_sensor import GemnsIoTBLEBinarySensor
-        binary_sensor_entity = GemnsIoTBLEBinarySensor(coordinator, config_entry)
+        from .ble_binary_sensor import GemnsBLEBinarySensor
+        binary_sensor_entity = GemnsBLEBinarySensor(coordinator, config_entry)
         entities.append(binary_sensor_entity)
         _LOGGER.info("Created binary sensor entity for leak sensor")
         
-    elif device_type in ["vibration_sensor"] or sensor_type == 2:
+    elif device_type in ["vibration_sensor"] or device_type == 2:
         # DEVICE_TYPE_VIBRATION_MONITOR = 2 - create binary sensor only
-        from .ble_binary_sensor import GemnsIoTBLEBinarySensor
-        binary_sensor_entity = GemnsIoTBLEBinarySensor(coordinator, config_entry)
+        from .ble_binary_sensor import GemnsBLEBinarySensor
+        binary_sensor_entity = GemnsBLEBinarySensor(coordinator, config_entry)
         entities.append(binary_sensor_entity)
         _LOGGER.info("Created binary sensor entity for vibration monitor")
         
-    elif device_type in ["two_way_switch"] or sensor_type == 3:
+    elif device_type in ["two_way_switch"] or device_type == 3:
         # DEVICE_TYPE_TWO_WAY_SWITCH = 3 - create binary sensor only
-        from .ble_binary_sensor import GemnsIoTBLEBinarySensor
-        binary_sensor_entity = GemnsIoTBLEBinarySensor(coordinator, config_entry)
+        from .ble_binary_sensor import GemnsBLEBinarySensor
+        binary_sensor_entity = GemnsBLEBinarySensor(coordinator, config_entry)
         entities.append(binary_sensor_entity)
         _LOGGER.info("Created binary sensor entity for two-way switch")
         
-    elif device_type in ["button", "legacy"] or sensor_type in [0, 1]:
+    elif device_type in ["button", "legacy"] or device_type in [0, 1]:
         # DEVICE_TYPE_LEGACY = 0, DEVICE_TYPE_BUTTON = 1 - create binary sensor only
-        from .ble_binary_sensor import GemnsIoTBLEBinarySensor
-        binary_sensor_entity = GemnsIoTBLEBinarySensor(coordinator, config_entry)
+        from .ble_binary_sensor import GemnsBLEBinarySensor
+        binary_sensor_entity = GemnsBLEBinarySensor(coordinator, config_entry)
         entities.append(binary_sensor_entity)
         _LOGGER.info("Created binary sensor entity for button/legacy device")
         
     else:
         # Unknown device type - create binary sensor (fallback)
         _LOGGER.warning("Unknown device type %s, creating binary sensor", device_type)
-        from .ble_binary_sensor import GemnsIoTBLEBinarySensor
-        binary_sensor_entity = GemnsIoTBLEBinarySensor(coordinator, config_entry)
+        from .ble_binary_sensor import GemnsBLEBinarySensor
+        binary_sensor_entity = GemnsBLEBinarySensor(coordinator, config_entry)
         entities.append(binary_sensor_entity)
     
     if entities:
         async_add_entities(entities)
 
 
-class GemnsIoTBLESensor(SensorEntity):
+class GemnsBLESensor(SensorEntity):
     """Representation of a Gemns™ IoT BLE sensor."""
 
     def __init__(
         self,
-        coordinator: GemnsIoTBluetoothProcessorCoordinator,
+        coordinator: GemnsBluetoothProcessorCoordinator,
         config_entry: ConfigEntry,
     ) -> None:
         """Initialize the BLE sensor."""
@@ -134,7 +134,7 @@ class GemnsIoTBLESensor(SensorEntity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, config_entry.entry_id)},
             name=self._attr_name,
-            manufacturer="Gemns™",
+            manufacturer="Gemns™ IoT",
             model="BLE Sensor",
             sw_version="1.0.0",
         )
@@ -218,8 +218,10 @@ class GemnsIoTBLESensor(SensorEntity):
     def _update_from_coordinator(self) -> None:
         """Update sensor state from coordinator data."""
         if not self.coordinator.data:
-            self._attr_available = False
-            _LOGGER.debug("BLE sensor %s: No coordinator data", self.address)
+            # Simple restart detection: if device exists but no data, keep available but no value
+            self._attr_available = True  # Keep available, just no data
+            self._attr_native_value = None
+            _LOGGER.debug("BLE sensor %s: No coordinator data - device available but no data (restart scenario)", self.address)
             return
             
         data = self.coordinator.data
@@ -270,25 +272,25 @@ class GemnsIoTBLESensor(SensorEntity):
         if "temperature" in device_type:
             self._attr_device_class = SensorDeviceClass.TEMPERATURE
             self._attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
-            self._attr_name = f"Gemns™ Temperature Sensor {self._get_professional_device_id()}"
+            self._attr_name = f"Gemns™ IoT Button {self._get_professional_device_id()}"
             self._attr_icon = "mdi:thermometer"
             
         elif "humidity" in device_type:
             self._attr_device_class = SensorDeviceClass.HUMIDITY
             self._attr_native_unit_of_measurement = PERCENTAGE
-            self._attr_name = f"Gemns™ Humidity Sensor {self._get_professional_device_id()}"
+            self._attr_name = f"Gemns™ IoT Vibration Monitor {self._get_professional_device_id()}"
             self._attr_icon = "mdi:water-percent"
             
         elif "pressure" in device_type:
             self._attr_device_class = SensorDeviceClass.PRESSURE
             self._attr_native_unit_of_measurement = UnitOfPressure.HPA
-            self._attr_name = f"Gemns™ Pressure Sensor {self._get_professional_device_id()}"
+            self._attr_name = f"Gemns™ IoT Two Way Switch {self._get_professional_device_id()}"
             self._attr_icon = "mdi:gauge"
             
         elif "vibration" in device_type:
             self._attr_device_class = SensorDeviceClass.VIBRATION
             self._attr_native_unit_of_measurement = "m/s²"
-            self._attr_name = f"Gemns™ Vibration Sensor {self._get_professional_device_id()}"
+            self._attr_name = f"Gemns™ IoT Vibration Sensor {self._get_professional_device_id()}"
             self._attr_icon = "mdi:vibrate"
             
         else:
@@ -303,9 +305,9 @@ class GemnsIoTBLESensor(SensorEntity):
         # Set model based on device type
         model_map = {
             "leak_sensor": "Leak Sensor",
-            "temperature_sensor": "Temperature Sensor",
-            "humidity_sensor": "Humidity Sensor",
-            "pressure_sensor": "Pressure Sensor",
+            "button": "Button",
+            "vibration_sensor": "Vibration Monitor",
+            "two_way_switch": "Two Way Switch",
             "vibration_sensor": "Vibration Sensor",
             "on_off_switch": "On/Off Switch",
             "light_switch": "Light Switch",
@@ -323,7 +325,7 @@ class GemnsIoTBLESensor(SensorEntity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, self.address)},
             name=self._attr_name,
-            manufacturer="Gemns™",
+            manufacturer="Gemns™ IoT",
             model=model,
             sw_version="1.0.0",
         )
@@ -336,18 +338,18 @@ class GemnsIoTBLESensor(SensorEntity):
         """Get device image URL based on device type."""
         # Map device types to their corresponding images
         image_map = {
-            "temperature_sensor": "/local/gemns_iot/temperature_sensor.png",
-            "humidity_sensor": "/local/gemns_iot/humidity_sensor.png",
-            "pressure_sensor": "/local/gemns_iot/pressure_sensor.png",
-            "vibration_sensor": "/local/gemns_iot/vibration_sensor.png",
-            "leak_sensor": "/local/gemns_iot/leak_sensor.png",
-            "on_off_switch": "/local/gemns_iot/switch.png",
-            "light_switch": "/local/gemns_iot/light_switch.png",
-            "door_switch": "/local/gemns_iot/door_sensor.png",
-            "toggle_switch": "/local/gemns_iot/toggle_switch.png",
+            "temperature_sensor": "/local/gems/temperature_sensor.png",
+            "humidity_sensor": "/local/gems/humidity_sensor.png",
+            "pressure_sensor": "/local/gems/pressure_sensor.png",
+            "vibration_sensor": "/local/gems/vibration_sensor.png",
+            "leak_sensor": "/local/gems/leak_sensor.png",
+            "on_off_switch": "/local/gems/switch.png",
+            "light_switch": "/local/gems/light_switch.png",
+            "door_switch": "/local/gems/door_sensor.png",
+            "toggle_switch": "/local/gems/toggle_switch.png",
         }
         
-        return image_map.get(device_type.lower(), "/local/gemns_iot/iot_sensor.png")
+        return image_map.get(device_type.lower(), "/local/gems/iot_sensor.png")
             
     def _extract_sensor_value(self, data: Dict[str, Any]) -> None:
         """Extract sensor value from coordinator data."""

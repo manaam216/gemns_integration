@@ -1,14 +1,14 @@
 {
-  "domain": "gemns_iot",
+  "domain": "gemns",
   "name": "Gemns™ IoT",
   "integration_type": "device",
   "bluetooth": [
     {
-      "local_name": "Gemns™",
+      "local_name": "Gemns",
       "connectable": false
     },
     {
-      "local_name": "Gemns™-*",
+      "local_name": "Gemns-*",
       "connectable": false
     },
     {
@@ -25,13 +25,13 @@
       "connectable": false
     }
   ],
-  "codeowners": ["@gemns"],
+  "codeowners": ["@gems"],
   "config_flow": true,
   "dependencies": ["bluetooth"],
-  "documentation": "https://github.com/gemns/gemns-iot-homeassistant",
+  "documentation": "https://github.com/gems/gems-homeassistant",
   "iot_class": "local_push",
-  "loggers": ["gemns_iot_ble"],
+  "loggers": ["gems_ble"],
   "requirements": ["cryptography>=3.0.0"],
-  "version": "1.0.101",
-  "icon": "/local/gemns_iot/icon.png"
+  "version": "1.0.1",
+  "icon": "/local/gems/icon.png"
 }

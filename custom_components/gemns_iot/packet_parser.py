@@ -9,12 +9,12 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 # Constants from the new packet format
-COMPANY_ID = 0x5750  # Gemns™ company ID
+COMPANY_ID = 0x5750  # Gemns™ IoT company ID
 PACKET_LENGTH = 18  # Total packet length (HA BLE driver filters company ID)
 ENCRYPTED_DATA_SIZE = 16
 
 class GemnsPacketFlags:
-    """Flags field parser for Gemns™ packets."""
+    """Flags field parser for Gemns™ IoT packets."""
     
     def __init__(self, flags_byte: int):
         self.encrypt_status = flags_byte & 0x01
@@ -23,7 +23,7 @@ class GemnsPacketFlags:
         self.payload_length = (flags_byte >> 4) & 0x0F
 
 class GemnsEncryptedData:
-    """Encrypted data structure for Gemns™ packets."""
+    """Encrypted data structure for Gemns™ IoT packets."""
     
     def __init__(self, data: bytes):
         if len(data) != ENCRYPTED_DATA_SIZE:
@@ -37,7 +37,7 @@ class GemnsEncryptedData:
         self.src_id = data[0:3]  # 3 bytes - Source ID (truncated serial number)
         self.nwk_id = data[3:5]  # 2 bytes - Network ID
         self.fw_version = data[5]  # 1 byte - Firmware version
-        self.sensor_type = data[6:8]  # 2 bytes - Sensor type
+        self.device_type = data[6:8]  # 2 bytes - Device type
         self.payload = data[8:16]  # 8 bytes - Custom payload
         
         _LOGGER.info("🔍 ENCRYPTED DATA PARSING:")
@@ -46,7 +46,7 @@ class GemnsEncryptedData:
         _LOGGER.info("  SRC ID (bytes 0-2): %s", self.src_id.hex())
         _LOGGER.info("  NWK ID (bytes 3-4): %s", self.nwk_id.hex())
         _LOGGER.info("  FW Version (byte 5): %d (0x%02X)", self.fw_version, self.fw_version)
-        _LOGGER.info("  Sensor Type (bytes 6-7): %s", self.sensor_type.hex())
+        _LOGGER.info("  Device Type (bytes 6-7): %s", self.device_type.hex())
         _LOGGER.info("  Payload (bytes 8-15): %s", self.payload.hex())
 
 class GemnsPacket:
@@ -60,7 +60,7 @@ class GemnsPacket:
         self.raw_data = raw_data
         # Packet structure after HA BLE driver filters company ID:
         # Flags (1 byte) + Encrypted Data (16 bytes) + CRC (1 byte) = 18 bytes
-        self.company_id = COMPANY_ID  # Gemns™ company ID (filtered by HA)
+        self.company_id = COMPANY_ID  # Gemns™ IoT company ID (filtered by HA)
         self.flags = GemnsPacketFlags(raw_data[0])  # 1 byte flags
         self.encrypted_data = GemnsEncryptedData(raw_data[1:17])  # 16 bytes encrypted data
         self.crc = raw_data[17]  # 1 byte CRC (position 17, not 16!)
@@ -69,7 +69,7 @@ class GemnsPacket:
                     len(raw_data), raw_data[0], self.crc)
     
     def is_valid_company_id(self) -> bool:
-        """Check if this is a Gemns™ packet."""
+        """Check if this is a Gemns™ IoT packet."""
         return self.company_id == COMPANY_ID
     
     def validate_crc(self) -> bool:
@@ -144,7 +144,7 @@ class GemnsPacket:
                 'src_id': struct.unpack('<I', decrypted_packet.src_id + b'\x00')[0],  # Convert 3 bytes to 32-bit int
                 'nwk_id': struct.unpack('<H', decrypted_packet.nwk_id)[0],  # Convert to integer
                 'fw_version': decrypted_packet.fw_version,
-                'sensor_type': decrypted_packet.sensor_type,  # Keep as bytes
+                'device_type': decrypted_packet.device_type,  # Keep as bytes
                 'payload': decrypted_packet.payload,  # Keep as bytes
                 'event_counter_lsb': self.flags.event_counter_lsb,
                 'payload_length': self.flags.payload_length,
@@ -157,18 +157,18 @@ class GemnsPacket:
     
     def parse_sensor_data(self, decrypted_data: Dict[str, Any]) -> Dict[str, Any]:
         """Parse sensor-specific data based on sensor type."""
-        # Parse sensor_type as little-endian 16-bit integer from bytes
-        sensor_type_bytes = decrypted_data['sensor_type']  # Already bytes
-        sensor_type = struct.unpack('<H', sensor_type_bytes)[0]  # Little-endian unsigned short
+        # Parse device_type as little-endian 16-bit integer from bytes
+        device_type_bytes = decrypted_data['device_type']  # Already bytes
+        device_type = struct.unpack('<H', device_type_bytes)[0]  # Little-endian unsigned short
         payload = decrypted_data['payload']  # Already bytes
         
         _LOGGER.info("🔍 SENSOR DATA PARSING:")
-        _LOGGER.info("  Sensor type bytes: %s", sensor_type_bytes.hex())
-        _LOGGER.info("  Sensor type decimal: %d", sensor_type)
+        _LOGGER.info("  Device type bytes: %s", device_type_bytes.hex())
+        _LOGGER.info("  Device type decimal: %d", device_type)
         _LOGGER.info("  Payload: %s", payload.hex())
         
         sensor_data = {
-            'sensor_type': sensor_type,
+            'device_type': device_type,
             'event_counter_lsb': decrypted_data['event_counter_lsb'],
             'payload_length': decrypted_data['payload_length'],
             'encrypt_status': decrypted_data['encrypt_status'],
@@ -176,7 +176,7 @@ class GemnsPacket:
         }
         
         # Parse based on sensor type (matching device_type_t enum)
-        if sensor_type == 4:  # DEVICE_TYPE_LEAK_SENSOR
+        if device_type == 4:  # DEVICE_TYPE_LEAK_SENSOR
             if len(payload) >= 4:
                 # Event Counter (3 bytes) + Sensor Event Report (1 byte)
                 event_counter = struct.unpack('<I', payload[0:3] + b'\x00')[0]  # Pad to 4 bytes
@@ -195,7 +195,7 @@ class GemnsPacket:
                     'leak_detected': False,  # No payload means no leak detected
                 })
         
-        elif sensor_type == 2:  # DEVICE_TYPE_VIBRATION_MONITOR
+        elif device_type == 2:  # DEVICE_TYPE_VIBRATION_MONITOR
             if len(payload) >= 4:
                 event_counter = struct.unpack('<I', payload[0:3] + b'\x00')[0]
                 sensor_event = payload[3]
@@ -212,7 +212,7 @@ class GemnsPacket:
                     'vibration_detected': False,
                 })
         
-        elif sensor_type == 3:  # DEVICE_TYPE_TWO_WAY_SWITCH
+        elif device_type == 3:  # DEVICE_TYPE_TWO_WAY_SWITCH
             if len(payload) >= 4:
                 event_counter = struct.unpack('<I', payload[0:3] + b'\x00')[0]
                 sensor_event = payload[3]
@@ -229,7 +229,7 @@ class GemnsPacket:
                     'switch_on': False,
                 })
         
-        elif sensor_type in [0, 1]:  # DEVICE_TYPE_LEGACY, DEVICE_TYPE_BUTTON
+        elif device_type in [0, 1]:  # DEVICE_TYPE_LEGACY, DEVICE_TYPE_BUTTON
             if len(payload) >= 4:
                 event_counter = struct.unpack('<I', payload[0:3] + b'\x00')[0]
                 sensor_event = payload[3]
@@ -248,8 +248,8 @@ class GemnsPacket:
         
         return sensor_data
 
-def parse_gemns_packet(manufacturer_data: bytes, decryption_key: Optional[bytes] = None) -> Optional[Dict[str, Any]]:
-    """Parse Gemns™ packet from manufacturer data."""
+def parse_gems_packet(manufacturer_data: bytes, decryption_key: Optional[bytes] = None) -> Optional[Dict[str, Any]]:
+    """Parse Gemns™ IoT packet from manufacturer data."""
     try:
         packet = GemnsPacket(manufacturer_data)
         
@@ -258,7 +258,7 @@ def parse_gemns_packet(manufacturer_data: bytes, decryption_key: Optional[bytes]
         
         # Validate CRC before processing
         if not packet.validate_crc():
-            _LOGGER.warning("CRC validation failed for Gemns™ packet")
+            _LOGGER.warning("CRC validation failed for Gemns™ IoT packet")
             return None
         
         result = {
@@ -282,5 +282,5 @@ def parse_gemns_packet(manufacturer_data: bytes, decryption_key: Optional[bytes]
         return result
         
     except Exception as e:
-        _LOGGER.error(f"Failed to parse Gemns™ packet: {e}")
+        _LOGGER.error(f"Failed to parse Gemns™ IoT packet: {e}")
         return None

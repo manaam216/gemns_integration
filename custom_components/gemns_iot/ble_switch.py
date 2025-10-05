@@ -11,7 +11,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
 
 from .const import DOMAIN, CONF_ADDRESS
-from .ble_coordinator import GemnsIoTBluetoothProcessorCoordinator
+from .ble_coordinator import GemnsBluetoothProcessorCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -45,19 +45,19 @@ async def async_setup_entry(
     entities = []
     
     # Create a switch entity for switch devices
-    switch_entity = GemnsIoTBLESwitch(coordinator, config_entry)
+    switch_entity = GemnsBLESwitch(coordinator, config_entry)
     entities.append(switch_entity)
     
     if entities:
         async_add_entities(entities)
 
 
-class GemnsIoTBLESwitch(SwitchEntity):
+class GemnsBLESwitch(SwitchEntity):
     """Representation of a Gemns™ IoT BLE switch."""
 
     def __init__(
         self,
-        coordinator: GemnsIoTBluetoothProcessorCoordinator,
+        coordinator: GemnsBluetoothProcessorCoordinator,
         config_entry: ConfigEntry,
     ) -> None:
         """Initialize the BLE switch."""
@@ -74,7 +74,7 @@ class GemnsIoTBLESwitch(SwitchEntity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, config_entry.entry_id)},
             name=self._attr_name,
-            manufacturer="Gemns™",
+            manufacturer="Gemns™ IoT",
             model="BLE Switch",
             sw_version="1.0.0",
         )
@@ -198,19 +198,19 @@ class GemnsIoTBLESwitch(SwitchEntity):
         
         # Set properties based on device type
         if "light" in device_type:
-            self._attr_name = f"Gemns™ Light Switch {self._get_professional_device_id()}"
+            self._attr_name = f"Gemns™ IoT Light Switch {self._get_professional_device_id()}"
             self._attr_icon = "mdi:lightbulb"
             
         elif "door" in device_type:
-            self._attr_name = f"Gemns™ Door Switch {self._get_professional_device_id()}"
+            self._attr_name = f"Gemns™ IoT Door Switch {self._get_professional_device_id()}"
             self._attr_icon = "mdi:door"
             
         elif "toggle" in device_type:
-            self._attr_name = f"Gemns™ Toggle Switch {self._get_professional_device_id()}"
+            self._attr_name = f"Gemns™ IoT Toggle Switch {self._get_professional_device_id()}"
             self._attr_icon = "mdi:toggle-switch"
             
         elif "switch" in device_type:
-            self._attr_name = f"Gemns™ On/Off Switch {self._get_professional_device_id()}"
+            self._attr_name = f"Gemns™ IoT On/Off Switch {self._get_professional_device_id()}"
             self._attr_icon = "mdi:power"
             
         else:
@@ -224,9 +224,9 @@ class GemnsIoTBLESwitch(SwitchEntity):
         # Set model based on device type
         model_map = {
             "leak_sensor": "Leak Sensor",
-            "temperature_sensor": "Temperature Sensor",
-            "humidity_sensor": "Humidity Sensor",
-            "pressure_sensor": "Pressure Sensor",
+            "button": "Button",
+            "vibration_sensor": "Vibration Monitor",
+            "two_way_switch": "Two Way Switch",
             "vibration_sensor": "Vibration Sensor",
             "on_off_switch": "On/Off Switch",
             "light_switch": "Light Switch",
@@ -244,7 +244,7 @@ class GemnsIoTBLESwitch(SwitchEntity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, self.address)},
             name=self._attr_name,
-            manufacturer="Gemns™",
+            manufacturer="Gemns™ IoT",
             model=model,
             sw_version="1.0.0",
         )
@@ -267,13 +267,13 @@ class GemnsIoTBLESwitch(SwitchEntity):
         """Get device image URL based on device type."""
         # Map device types to their corresponding images
         image_map = {
-            "on_off_switch": "/local/gemns_iot/switch.png",
-            "light_switch": "/local/gemns_iot/light_switch.png",
-            "door_switch": "/local/gemns_iot/door_sensor.png",
-            "toggle_switch": "/local/gemns_iot/toggle_switch.png",
+            "on_off_switch": "/local/gems/switch.png",
+            "light_switch": "/local/gems/light_switch.png",
+            "door_switch": "/local/gems/door_sensor.png",
+            "toggle_switch": "/local/gems/toggle_switch.png",
         }
         
-        return image_map.get(device_type.lower(), "/local/gemns_iot/switch.png")
+        return image_map.get(device_type.lower(), "/local/gems/switch.png")
             
     def _extract_switch_value(self, data: Dict[str, Any]) -> None:
         """Extract switch value from coordinator data."""

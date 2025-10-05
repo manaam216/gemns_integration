@@ -13,7 +13,7 @@ from .const import DOMAIN, SIGNAL_DEVICE_UPDATED
 _LOGGER = logging.getLogger(__name__)
 
 
-class GemnsIoTDataCoordinator(DataUpdateCoordinator):
+class GemnsDataCoordinator(DataUpdateCoordinator):
     """Class to manage fetching data from the Gemns™ IoT device manager."""
 
     def __init__(self, hass: HomeAssistant, device_manager) -> None:

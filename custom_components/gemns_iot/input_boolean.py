@@ -30,18 +30,18 @@ async def async_setup_entry(
     entities = []
     
     # BLE Toggle
-    ble_toggle = GemnsIoTBLEToggle(device_manager)
+    ble_toggle = GemnsBLEToggle(device_manager)
     entities.append(ble_toggle)
     
     # Zigbee Toggle
-    zigbee_toggle = GemnsIoTZigbeeToggle(device_manager)
+    zigbee_toggle = GemnsZigbeeToggle(device_manager)
     entities.append(zigbee_toggle)
     
     if entities:
         async_add_entities(entities)
 
 
-class GemnsIoTBLEToggle(InputBoolean):
+class GemnsBLEToggle(InputBoolean):
     """Representation of BLE toggle."""
 
     def __init__(self, device_manager):
@@ -56,7 +56,7 @@ class GemnsIoTBLEToggle(InputBoolean):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, "ble_toggle")},
             name="Gemns™ IoT BLE Toggle",
-            manufacturer="Gemns™",
+            manufacturer="Gemns™ IoT",
             model="BLE Toggle",
             sw_version="1.0.0",
         )
@@ -87,7 +87,7 @@ class GemnsIoTBLEToggle(InputBoolean):
         self.hass.bus.async_fire(f"{DOMAIN}_ble_toggled", {"enabled": False})
 
 
-class GemnsIoTZigbeeToggle(InputBoolean):
+class GemnsZigbeeToggle(InputBoolean):
     """Representation of Zigbee toggle."""
 
     def __init__(self, device_manager):
@@ -102,7 +102,7 @@ class GemnsIoTZigbeeToggle(InputBoolean):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, "zigbee_toggle")},
             name="Gemns™ IoT Zigbee Toggle",
-            manufacturer="Gemns™",
+            manufacturer="Gemns™ IoT",
             model="Zigbee Toggle",
             sw_version="1.0.0",
         )

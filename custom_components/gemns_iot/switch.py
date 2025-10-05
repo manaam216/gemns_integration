@@ -62,7 +62,7 @@ async def async_setup_entry(
     # Create switch entities
     entities = []
     for device in switch_devices:
-        switch_entity = GemnsIoTSwitch(device_manager, device)
+        switch_entity = GemnsSwitch(device_manager, device)
         entities.append(switch_entity)
         _entities.append(switch_entity)
         
@@ -80,7 +80,7 @@ async def async_setup_entry(
             
             if not existing_entity:
                 # Create new entity
-                new_entity = GemnsIoTSwitch(device_manager, device_data)
+                new_entity = GemnsSwitch(device_manager, device_data)
                 _entities.append(new_entity)
                 _add_entities_callback([new_entity])
                 _LOGGER.info(f"Created new switch entity for device: {device_id}")
@@ -89,7 +89,7 @@ async def async_setup_entry(
     async_dispatcher_connect(hass, SIGNAL_DEVICE_ADDED, handle_new_device)
 
 
-class GemnsIoTSwitch(SwitchEntity):
+class GemnsSwitch(SwitchEntity):
     """Representation of a Gemns™ IoT switch."""
 
     def __init__(self, device_manager, device: Dict[str, Any]):
@@ -105,7 +105,7 @@ class GemnsIoTSwitch(SwitchEntity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, self.device_id)},
             name=self._attr_name,
-            manufacturer="Gemns™",
+            manufacturer="Gemns™ IoT",
             model=device.get("device_type", "Unknown"),
             sw_version=device.get("firmware_version", "1.0.0"),
         )
@@ -202,7 +202,7 @@ class GemnsIoTSwitch(SwitchEntity):
             }
             
             await self.device_manager.publish_mqtt(
-                f"gemns_iot/device/{self.device_id}/command",
+                f"gemns/device/{self.device_id}/command",
                 json.dumps(turn_off_message)
             )
             
@@ -228,7 +228,7 @@ class GemnsIoTSwitch(SwitchEntity):
         }
         
         await self.device_manager.publish_mqtt(
-            f"gemns_iot/device/{self.device_id}/command",
+            f"gems/device/{self.device_id}/command",
             json.dumps(turn_on_message)
         )
         
@@ -264,7 +264,7 @@ class GemnsIoTSwitch(SwitchEntity):
             
         # Send command
         await self.device_manager.publish_mqtt(
-            f"gemns_iot/device/{self.device_id}/command",
+            f"gems/device/{self.device_id}/command",
             json.dumps(turn_on_message)
         )
         
