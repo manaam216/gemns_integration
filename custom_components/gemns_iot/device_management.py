@@ -1,4 +1,4 @@
-"""Device management for Gemns™ IoT integration."""
+"""Device management for Gemns integration."""
 
 import asyncio
 import json
@@ -37,8 +37,8 @@ _LOGGER = logging.getLogger(__name__)
 SIGNAL_DEVICE_ADDED = f"{DOMAIN}_device_added"
 SIGNAL_DEVICE_REMOVED = f"{DOMAIN}_device_removed"
 
-class GemnsIoTDeviceManager:
-    """Manages Gemns™ IoT devices."""
+class GemnsDeviceManager:
+    """Manages Gemns devices."""
 
     def __init__(self, hass: HomeAssistant, config: Dict[str, Any]):
         """Initialize the device manager."""
