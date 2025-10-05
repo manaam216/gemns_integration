@@ -1,4 +1,4 @@
-"""The Gemns IoT integration."""
+"""The Gemns integration."""
 
 import json
 import logging
@@ -9,9 +9,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import service
 
 from .const import DOMAIN
-from .device_management import GemnsIoTDeviceManager
-from .coordinator import GemnsIoTDataCoordinator
-from .ble_coordinator import GemnsIoTBluetoothProcessorCoordinator
+from .device_management import GemnsDeviceManager
+from .coordinator import GemnsDataCoordinator
+from .ble_coordinator import GemnsBluetoothProcessorCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -28,18 +28,14 @@ BLE_PLATFORMS: list[Platform] = [
 ]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Gemns IoT from a config entry."""
+    """Set up Gemns from a config entry."""
     hass.data.setdefault(DOMAIN, {})
     
     # Check if this is a BLE device entry
     if entry.data.get("address"):
         # This is a BLE device entry
-        coordinator = GemnsIoTBluetoothProcessorCoordinator(hass, entry)
-        try:
-            await coordinator.async_init()
-        except Exception as e:
-            _LOGGER.warning("BLE coordinator init failed for %s: %s - continuing anyway for event-driven devices", entry.data.get("address"), e)
-            # Don't fail setup for event-driven devices that may not advertise immediately
+        coordinator = GemnsBluetoothProcessorCoordinator(hass, entry)
+        await coordinator.async_init()
         entry.runtime_data = coordinator
         
         # Store coordinator in hass.data for consistency with unload process
@@ -58,11 +54,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     else:
         # This is a traditional MQTT-based entry
         # Create device manager
-        device_manager = GemnsIoTDeviceManager(hass, entry.data)
+        device_manager = GemnsDeviceManager(hass, entry.data)
         await device_manager.start()
         
         # Create coordinator
-        coordinator = GemnsIoTDataCoordinator(hass, device_manager)
+        coordinator = GemnsDataCoordinator(hass, device_manager)
         await coordinator.async_setup()
         
         # Store device manager and coordinator in hass data
@@ -104,8 +100,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return unload_ok
 
 
-async def _register_services(hass: HomeAssistant, device_manager: GemnsIoTDeviceManager):
-    """Register Gemns IoT services."""
+async def _register_services(hass: HomeAssistant, device_manager: GemnsDeviceManager):
+    """Register Gemns services."""
     
     async def add_device(service_call):
         """Add a new device."""
@@ -132,5 +128,3 @@ async def _register_services(hass: HomeAssistant, device_manager: GemnsIoTDevice
     hass.services.async_register(DOMAIN, "add_device", add_device)
     hass.services.async_register(DOMAIN, "remove_device", remove_device)
     hass.services.async_register(DOMAIN, "create_entities", create_entities_for_devices)
-
-
