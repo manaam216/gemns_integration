@@ -1,12 +1,12 @@
 {
   "entity": {
     "binary_sensor": {
-      "gemns_iot": {
+      "wepower_iot": {
         "default": "mdi:chip"
       }
     },
     "sensor": {
-      "gemns_iot": {
+      "wepower_iot": {
         "default": "mdi:chip"
       }
     }
