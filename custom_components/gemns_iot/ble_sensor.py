@@ -338,18 +338,18 @@ class GemnsBLESensor(SensorEntity):
         """Get device image URL based on device type."""
         # Map device types to their corresponding images
         image_map = {
-            "temperature_sensor": "/local/gemns/temperature_sensor.png",
-            "humidity_sensor": "/local/gemns/humidity_sensor.png",
-            "pressure_sensor": "/local/gemns/pressure_sensor.png",
-            "vibration_sensor": "/local/gemns/vibration_sensor.png",
-            "leak_sensor": "/local/gemns/leak_sensor.png",
-            "on_off_switch": "/local/gemns/switch.png",
-            "light_switch": "/local/gemns/light_switch.png",
-            "door_switch": "/local/gemns/door_sensor.png",
-            "toggle_switch": "/local/gemns/toggle_switch.png",
+            "temperature_sensor": "/local/gems/temperature_sensor.png",
+            "humidity_sensor": "/local/gems/humidity_sensor.png",
+            "pressure_sensor": "/local/gems/pressure_sensor.png",
+            "vibration_sensor": "/local/gems/vibration_sensor.png",
+            "leak_sensor": "/local/gems/leak_sensor.png",
+            "on_off_switch": "/local/gems/switch.png",
+            "light_switch": "/local/gems/light_switch.png",
+            "door_switch": "/local/gems/door_sensor.png",
+            "toggle_switch": "/local/gems/toggle_switch.png",
         }
         
-        return image_map.get(device_type.lower(), "/local/gemns/iot_sensor.png")
+        return image_map.get(device_type.lower(), "/local/gems/iot_sensor.png")
             
     def _extract_sensor_value(self, data: Dict[str, Any]) -> None:
         """Extract sensor value from coordinator data."""

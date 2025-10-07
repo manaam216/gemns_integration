@@ -118,7 +118,7 @@ class GemnsBluetoothConfigFlow(ConfigFlow, domain=DOMAIN):
         self._abort_if_unique_id_configured()
         
         # Check if this looks like a Gemns™ IoT device
-        if not self._is_gemns_device(discovery_info):
+        if not self._is_gems_device(discovery_info):
             return self.async_abort(reason="not_supported")
         
         # Extract device type from beacon data for better discovery display
@@ -247,7 +247,7 @@ class GemnsBluetoothConfigFlow(ConfigFlow, domain=DOMAIN):
             },
         )
 
-    def _is_gemns_device(self, discovery_info: BluetoothServiceInfo) -> bool:
+    def _is_gems_device(self, discovery_info: BluetoothServiceInfo) -> bool:
         """Check if this is a Gemns™ IoT device using new packet format."""
         # Check manufacturer data for new Company ID
         if discovery_info.manufacturer_data:
@@ -257,7 +257,7 @@ class GemnsBluetoothConfigFlow(ConfigFlow, domain=DOMAIN):
         
         # Check name patterns as fallback
         name = discovery_info.name or ""
-        if any(pattern in name.upper() for pattern in ["GEMNS", "gemns"]):
+        if any(pattern in name.upper() for pattern in ["GEMNS", "GEMS"]):
             return True
         
         return False

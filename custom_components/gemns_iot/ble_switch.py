@@ -267,13 +267,13 @@ class GemnsBLESwitch(SwitchEntity):
         """Get device image URL based on device type."""
         # Map device types to their corresponding images
         image_map = {
-            "on_off_switch": "/local/gemns/switch.png",
-            "light_switch": "/local/gemns/light_switch.png",
-            "door_switch": "/local/gemns/door_sensor.png",
-            "toggle_switch": "/local/gemns/toggle_switch.png",
+            "on_off_switch": "/local/gems/switch.png",
+            "light_switch": "/local/gems/light_switch.png",
+            "door_switch": "/local/gems/door_sensor.png",
+            "toggle_switch": "/local/gems/toggle_switch.png",
         }
         
-        return image_map.get(device_type.lower(), "/local/gemns/switch.png")
+        return image_map.get(device_type.lower(), "/local/gems/switch.png")
             
     def _extract_switch_value(self, data: Dict[str, Any]) -> None:
         """Extract switch value from coordinator data."""
