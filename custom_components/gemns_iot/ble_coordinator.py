@@ -26,7 +26,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.event import async_track_time_interval
 
 from .const import DOMAIN, BLE_COMPANY_ID, CONF_DECRYPTION_KEY, CONF_ADDRESS
-from .packet_parser import parse_gems_packet
+from .packet_parser import parse_gemns_packet
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -162,7 +162,7 @@ class GemnsBluetoothProcessorCoordinator(
                             self.address, manufacturer_id, manufacturer_data.hex())
                 if manufacturer_id == BLE_COMPANY_ID:  # Gemns™ IoT manufacturer ID (0x5750)
                     _LOGGER.info("✅ GEMNS™ IOT DEVICE DETECTED: %s | Parsing data...", self.address)
-                    parsed_data = self._parse_gems_manufacturer_data(manufacturer_data)
+                    parsed_data = self._parse_gemns_manufacturer_data(manufacturer_data)
                     if parsed_data:
                         data.update(parsed_data)
                         _LOGGER.info("🎯 GEMNS™ IOT DATA PARSED: %s | Result: %s", self.address, parsed_data)
@@ -218,7 +218,7 @@ class GemnsBluetoothProcessorCoordinator(
         
         return data
 
-    def _parse_gems_manufacturer_data(self, data: bytes) -> dict[str, Any]:
+    def _parse_gemns_manufacturer_data(self, data: bytes) -> dict[str, Any]:
         """Parse Gemns™ IoT manufacturer data using 18-byte packet format."""
         _LOGGER.info("🔐 PARSING GEMNS DATA: Length=%d | Data=%s", len(data), data.hex())
         
@@ -264,7 +264,7 @@ class GemnsBluetoothProcessorCoordinator(
         _LOGGER.info("📦 CALLING PACKET PARSER: packet_data=%s, key=%s", 
                     data.hex(), decryption_key.hex() if decryption_key else "None")
         
-        parsed_packet = parse_gems_packet(data, decryption_key)
+        parsed_packet = parse_gemns_packet(data, decryption_key)
         
         if not parsed_packet:
             _LOGGER.error("🔴 PACKET PARSER RETURNED EMPTY RESULT")
@@ -331,7 +331,7 @@ class GemnsBluetoothProcessorCoordinator(
             _LOGGER.info("🔍 Found %d total Bluetooth devices", len(discovered_devices))
             for device in discovered_devices:
                 _LOGGER.info("🔍 Checking device: %s (%s)", device.name, device.address)
-                if self._is_gems_device(device):
+                if self._is_gemns_device(device):
                     _LOGGER.info("🎯 Found Gemns™ IoT device: %s (%s)", device.name, device.address)
                     # Update the config entry with the real MAC address
                     new_data = self._entry.data.copy()
@@ -359,7 +359,7 @@ class GemnsBluetoothProcessorCoordinator(
             _LOGGER.info("🔄 Retrying discovery...")
             await self._discover_and_update_address()
     
-    def _is_gems_device(self, discovery_info: BluetoothServiceInfo) -> bool:
+    def _is_gemns_device(self, discovery_info: BluetoothServiceInfo) -> bool:
         """Check if this is a Gemns™ IoT device."""
         # Check manufacturer data for Gemns™ IoT Company ID (22352)
         if discovery_info.manufacturer_data:
@@ -372,7 +372,7 @@ class GemnsBluetoothProcessorCoordinator(
         # Check name patterns as fallback
         name = discovery_info.name or ""
         _LOGGER.info("🔍 Checking device name: '%s'", name)
-        if any(pattern in name.upper() for pattern in ["GEMNS", "GEMS"]):
+        if any(pattern in name.upper() for pattern in ["GEMNS", "gemns"]):
             _LOGGER.info("✅ Found Gemns™ IoT device by name pattern")
             return True
         
