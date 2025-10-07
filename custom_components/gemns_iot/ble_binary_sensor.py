@@ -298,16 +298,16 @@ class GemnsBLEBinarySensor(BinarySensorEntity):
     
     def _get_device_image(self, device_type: str) -> str:
         """Get device image URL based on device type."""
-        # Map device types to their corresponding images
+        # Map device types to their corresponding image paths
         image_map = {
-            "leak_sensor": "/local/gems/leak_sensor.png",
-            "vibration_sensor": "/local/gems/vibration_sensor.png", 
-            "two_way_switch": "/local/gems/switch.png",
-            "button": "/local/gems/button.png",
-            "legacy": "/local/gems/legacy_device.png",
+            "leak_sensor": "/local/custom_components/gemns/static/icon.png",
+            "vibration_sensor": "/local/custom_components/gemns/static/icon.png", 
+            "two_way_switch": "/local/custom_components/gemns/static/icon.png",
+            "button": "/local/custom_components/gemns/static/icon.png",
+            "legacy": "/local/custom_components/gemns/static/icon.png",
         }
         
-        return image_map.get(device_type.lower(), "/local/gems/iot_device.png")
+        return image_map.get(device_type.lower(), "/local/custom_components/gemns/static/icon.png")
             
     def _extract_binary_sensor_value(self, data: Dict[str, Any]) -> None:
         """Extract binary sensor value from coordinator data."""
