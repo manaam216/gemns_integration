@@ -336,20 +336,20 @@ class GemnsBLESensor(SensorEntity):
     
     def _get_device_image(self, device_type: str) -> str:
         """Get device image URL based on device type."""
-        # Map device types to their corresponding images
+        # Map device types to their corresponding image paths
         image_map = {
-            "temperature_sensor": "/local/gems/temperature_sensor.png",
-            "humidity_sensor": "/local/gems/humidity_sensor.png",
-            "pressure_sensor": "/local/gems/pressure_sensor.png",
-            "vibration_sensor": "/local/gems/vibration_sensor.png",
-            "leak_sensor": "/local/gems/leak_sensor.png",
-            "on_off_switch": "/local/gems/switch.png",
-            "light_switch": "/local/gems/light_switch.png",
-            "door_switch": "/local/gems/door_sensor.png",
-            "toggle_switch": "/local/gems/toggle_switch.png",
+            "temperature_sensor": "/local/custom_components/gemns/static/icon.png",
+            "humidity_sensor": "/local/custom_components/gemns/static/icon.png", 
+            "pressure_sensor": "/local/custom_components/gemns/static/icon.png",
+            "vibration_sensor": "/local/custom_components/gemns/static/icon.png",
+            "leak_sensor": "/local/custom_components/gemns/static/icon.png",
+            "on_off_switch": "/local/custom_components/gemns/static/icon.png",
+            "light_switch": "/local/custom_components/gemns/static/icon.png",
+            "door_switch": "/local/custom_components/gemns/static/icon.png",
+            "toggle_switch": "/local/custom_components/gemns/static/icon.png",
         }
         
-        return image_map.get(device_type.lower(), "/local/gems/iot_sensor.png")
+        return image_map.get(device_type.lower(), "/local/custom_components/gemns/static/icon.png")
             
     def _extract_sensor_value(self, data: Dict[str, Any]) -> None:
         """Extract sensor value from coordinator data."""
