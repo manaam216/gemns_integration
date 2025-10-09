@@ -150,7 +150,7 @@ class GemnsBLEBinarySensor(BinarySensorEntity):
             
             # Check if state changed and log for automation debugging
             if previous_state != self._attr_is_on:
-                _LOGGER.info("🔄 BINARY SENSOR STATE CHANGED: %s | Previous: %s | New: %s", 
+                _LOGGER.info("BINARY SENSOR STATE CHANGED: %s | Previous: %s | New: %s", 
                            self.address, previous_state, self._attr_is_on)
             
             self.async_write_ha_state()
@@ -167,7 +167,7 @@ class GemnsBLEBinarySensor(BinarySensorEntity):
             return
             
         data = self.coordinator.data
-        _LOGGER.info("🔄 UPDATING BINARY SENSOR: %s | Coordinator data: %s", self.address, data)
+        _LOGGER.info("UPDATING BINARY SENSOR: %s | Coordinator data: %s", self.address, data)
         
         # Update device type and name from coordinator data
         self._device_type = data.get("device_type", "unknown")
@@ -177,7 +177,7 @@ class GemnsBLEBinarySensor(BinarySensorEntity):
         if coordinator_name != "Gemns™ IoT Device":
             self._attr_name = coordinator_name
         
-        _LOGGER.info("🏷️ DEVICE TYPE: %s | Type: %s | Name: %s", self.address, self._device_type, self._attr_name)
+        _LOGGER.info("DEVICE TYPE: %s | Type: %s | Name: %s", self.address, self._device_type, self._attr_name)
         
         # Set sensor properties based on device type
         self._set_sensor_properties()
@@ -190,7 +190,7 @@ class GemnsBLEBinarySensor(BinarySensorEntity):
         
         # Update availability
         self._attr_available = True
-        _LOGGER.info("✅ BINARY SENSOR UPDATED: %s | Available: %s | Value: %s | BLE_active: %s | Coordinator_available: %s", 
+        _LOGGER.info("BINARY SENSOR UPDATED: %s | Available: %s | Value: %s | BLE_active: %s | Coordinator_available: %s", 
                      self.address, self._attr_available, self._attr_is_on, True, self.coordinator.available)
         
     def _set_sensor_properties(self) -> None:
@@ -311,40 +311,40 @@ class GemnsBLEBinarySensor(BinarySensorEntity):
             
     def _extract_binary_sensor_value(self, data: Dict[str, Any]) -> None:
         """Extract binary sensor value from coordinator data."""
-        _LOGGER.info("🔍 EXTRACTING BINARY SENSOR VALUE: %s | Data: %s", self.address, data)
+        _LOGGER.info("EXTRACTING BINARY SENSOR VALUE: %s | Data: %s", self.address, data)
         
         # Try to get sensor value from sensor_data
         sensor_data = data.get("sensor_data", {})
-        _LOGGER.info("📊 SENSOR DATA: %s | Sensor data: %s", self.address, sensor_data)
+        _LOGGER.info("SENSOR DATA: %s | Sensor data: %s", self.address, sensor_data)
         
         if "leak_detected" in sensor_data:
             # DEVICE_TYPE_LEAK_SENSOR = 4 - EVENT_TYPE_LEAK_DETECTED = 4
             self._attr_is_on = sensor_data["leak_detected"]
-            _LOGGER.info("💧 LEAK BINARY SENSOR: %s | Leak detected: %s | Value: %s", 
+            _LOGGER.info("LEAK BINARY SENSOR: %s | Leak detected: %s | Value: %s", 
                         self.address, sensor_data["leak_detected"], self._attr_is_on)
             
         elif "vibration_detected" in sensor_data:
             # DEVICE_TYPE_VIBRATION_MONITOR = 2 - EVENT_TYPE_VIBRATION = 1
             self._attr_is_on = sensor_data["vibration_detected"]
-            _LOGGER.info("📳 VIBRATION BINARY SENSOR: %s | Vibration detected: %s | Value: %s", 
+            _LOGGER.info("VIBRATION BINARY SENSOR: %s | Vibration detected: %s | Value: %s", 
                         self.address, sensor_data["vibration_detected"], self._attr_is_on)
             
         elif "switch_on" in sensor_data:
             # DEVICE_TYPE_TWO_WAY_SWITCH = 3 - EVENT_TYPE_BUTTON_ON = 3
             self._attr_is_on = sensor_data["switch_on"]
-            _LOGGER.info("🔌 SWITCH BINARY SENSOR: %s | Switch on: %s | Value: %s", 
+            _LOGGER.info("SWITCH BINARY SENSOR: %s | Switch on: %s | Value: %s", 
                         self.address, sensor_data["switch_on"], self._attr_is_on)
             
         elif "button_pressed" in sensor_data:
             # DEVICE_TYPE_BUTTON = 1, DEVICE_TYPE_LEGACY = 0 - EVENT_TYPE_BUTTON_PRESS = 0
             self._attr_is_on = sensor_data["button_pressed"]
-            _LOGGER.info("🔘 BUTTON BINARY SENSOR: %s | Button pressed: %s | Value: %s", 
+            _LOGGER.info("BUTTON BINARY SENSOR: %s | Button pressed: %s | Value: %s", 
                         self.address, sensor_data["button_pressed"], self._attr_is_on)
             
         elif "sensor_event" in sensor_data:
             # For other sensors, use sensor_event as binary state
             self._attr_is_on = sensor_data["sensor_event"] > 0
-            _LOGGER.info("📡 SENSOR EVENT BINARY: %s | Event: %s | Value: %s", 
+            _LOGGER.info("SENSOR EVENT BINARY: %s | Event: %s | Value: %s", 
                         self.address, sensor_data["sensor_event"], self._attr_is_on)
             
         else:
@@ -352,11 +352,11 @@ class GemnsBLEBinarySensor(BinarySensorEntity):
             if "leak" in self._device_type.lower():
                 # For leak sensors without data, assume no leak (False)
                 self._attr_is_on = False
-                _LOGGER.info("💧 LEAK SENSOR DEFAULT: %s | No leak data, assuming no leak (False)", self.address)
+                _LOGGER.info("LEAK SENSOR DEFAULT: %s | No leak data, assuming no leak (False)", self.address)
             else:
                 # For other sensors, default to False
                 self._attr_is_on = False
-                _LOGGER.warning("⚠️ NO BINARY VALUE: %s | No leak detection or sensor event found", self.address)
+                _LOGGER.warning("NO BINARY VALUE: %s | No leak detection or sensor event found", self.address)
 
     async def async_update(self) -> None:
         """Update binary sensor state."""
