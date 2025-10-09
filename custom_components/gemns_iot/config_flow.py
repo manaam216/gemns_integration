@@ -42,27 +42,35 @@ class GemnsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle the initial step."""
-        if user_input is None:
-            return self.async_show_form(
-                step_id="user",
-                data_schema=vol.Schema(
-                    {
-                        vol.Required("integration_type"): vol.In({
-                            "mqtt": "MQTT-based (Traditional)",
-                            "ble": "Bluetooth Low Energy (BLE) - Manual Provisioning"
-                        }),
-                    }
-                ),
-            )
-
-        integration_type = user_input["integration_type"]
+        # MQTT option temporarily disabled - firmware not developed yet
+        # To re-enable MQTT: uncomment the integration_type selection below
+        # and restore the conditional logic in the rest of this method
         
-        if integration_type == "ble":
-            # Redirect to BLE config flow for automatic provisioning
-            return await self.async_step_ble()
-        else:
-            # Continue with MQTT setup
-            return await self.async_step_mqtt()
+        # Force BLE manual provisioning for now
+        return await self.async_step_ble()
+        
+        # MQTT OPTION (COMMENTED OUT - TO RE-ENABLE WHEN FIRMWARE IS READY):
+        # if user_input is None:
+        #     return self.async_show_form(
+        #         step_id="user",
+        #         data_schema=vol.Schema(
+        #             {
+        #                 vol.Required("integration_type"): vol.In({
+        #                     "mqtt": "MQTT-based (Traditional)",
+        #                     "ble": "Bluetooth Low Energy (BLE) - Manual Provisioning"
+        #                 }),
+        #             }
+        #         ),
+        #     )
+        #
+        # integration_type = user_input["integration_type"]
+        # 
+        # if integration_type == "ble":
+        #     # Redirect to BLE config flow for automatic provisioning
+        #     return await self.async_step_ble()
+        # else:
+        #     # Continue with MQTT setup
+        #     return await self.async_step_mqtt()
 
     async def async_step_mqtt(
         self, user_input: dict[str, Any] | None = None
