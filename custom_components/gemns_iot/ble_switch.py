@@ -154,7 +154,7 @@ class GemnsBLESwitch(SwitchEntity):
             
             # Check if state changed and log for automation debugging
             if previous_state != self._attr_is_on:
-                _LOGGER.info("🔄 SWITCH STATE CHANGED: %s | Previous: %s | New: %s", 
+                _LOGGER.info("SWITCH STATE CHANGED: %s | Previous: %s | New: %s", 
                            self.address, previous_state, self._attr_is_on)
             
             self.async_write_ha_state()
@@ -169,11 +169,11 @@ class GemnsBLESwitch(SwitchEntity):
             return
             
         data = self.coordinator.data
-        _LOGGER.info("🔄 UPDATING SWITCH: %s | Coordinator data: %s", self.address, data)
+        _LOGGER.info("UPDATING SWITCH: %s | Coordinator data: %s", self.address, data)
         
         # Update device type
         self._device_type = data.get("device_type", "unknown")
-        _LOGGER.info("🏷️ DEVICE TYPE: %s | Type: %s", self.address, self._device_type)
+        _LOGGER.info("DEVICE TYPE: %s | Type: %s", self.address, self._device_type)
         
         # Set switch properties based on device type
         self._set_switch_properties()
@@ -186,7 +186,7 @@ class GemnsBLESwitch(SwitchEntity):
         
         # Update availability
         self._attr_available = True
-        _LOGGER.info("✅ SWITCH UPDATED: %s | Available: %s | Value: %s | BLE_active: %s | Coordinator_available: %s", 
+        _LOGGER.info("SWITCH UPDATED: %s | Available: %s | Value: %s | BLE_active: %s | Coordinator_available: %s", 
                      self.address, self._attr_available, self._attr_is_on, True, self.coordinator.available)
         
     def _set_switch_properties(self) -> None:
@@ -277,32 +277,32 @@ class GemnsBLESwitch(SwitchEntity):
             
     def _extract_switch_value(self, data: Dict[str, Any]) -> None:
         """Extract switch value from coordinator data."""
-        _LOGGER.info("🔍 EXTRACTING SWITCH VALUE: %s | Data: %s", self.address, data)
+        _LOGGER.info("EXTRACTING SWITCH VALUE: %s | Data: %s", self.address, data)
         
         # Try to get switch value from sensor_data
         sensor_data = data.get("sensor_data", {})
-        _LOGGER.info("📊 SENSOR DATA: %s | Sensor data: %s", self.address, sensor_data)
+        _LOGGER.info("SENSOR DATA: %s | Sensor data: %s", self.address, sensor_data)
         
         if "switch_on" in sensor_data:
             # For switches, return True if switch is on
             self._attr_is_on = sensor_data["switch_on"]
-            _LOGGER.info("🔌 SWITCH VALUE: %s | Switch on: %s | Value: %s", 
+            _LOGGER.info("SWITCH VALUE: %s | Switch on: %s | Value: %s", 
                         self.address, sensor_data["switch_on"], self._attr_is_on)
             
         elif "sensor_event" in sensor_data:
             # For other devices, use sensor_event as switch state
             self._attr_is_on = sensor_data["sensor_event"] > 0
-            _LOGGER.info("📡 SENSOR EVENT SWITCH: %s | Event: %s | Value: %s", 
+            _LOGGER.info("SENSOR EVENT SWITCH: %s | Event: %s | Value: %s", 
                         self.address, sensor_data["sensor_event"], self._attr_is_on)
             
         else:
             # No specific switch value found, default to False
             self._attr_is_on = False
-            _LOGGER.warning("⚠️ NO SWITCH VALUE: %s | No switch data found", self.address)
+            _LOGGER.warning("NO SWITCH VALUE: %s | No switch data found", self.address)
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the switch on."""
-        _LOGGER.info("🔌 TURNING ON SWITCH: %s", self.address)
+        _LOGGER.info("TURNING ON SWITCH: %s", self.address)
         # Note: Switch control is read-only for now
         # The switch state is determined by the device's sensor_event data
         _LOGGER.warning("Switch control is read-only. State is determined by device sensor_event data.")
@@ -310,7 +310,7 @@ class GemnsBLESwitch(SwitchEntity):
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the switch off."""
-        _LOGGER.info("🔌 TURNING OFF SWITCH: %s", self.address)
+        _LOGGER.info("TURNING OFF SWITCH: %s", self.address)
         # Note: Switch control is read-only for now
         # The switch state is determined by the device's sensor_event data
         _LOGGER.warning("Switch control is read-only. State is determined by device sensor_event data.")
