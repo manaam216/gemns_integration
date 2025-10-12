@@ -102,6 +102,11 @@ class GemnsBluetoothProcessorCoordinator(
             )
         )
         
+        # Add test mode for firmware version testing (when no real device is available)
+        if self.address.startswith("gemns_discovery_"):
+            _LOGGER.info("TEST MODE: Simulating firmware version 1.0 (byte 16) for testing")
+            self._simulate_test_packet()
+        
         # Don't call parent async_init as it may raise ConfigEntryNotReady
         # for devices that don't advertise immediately
     
@@ -409,6 +414,53 @@ class GemnsBluetoothProcessorCoordinator(
         except Exception as e:
             _LOGGER.error("Error updating coordinator address: %s", e)
     
+    def _simulate_test_packet(self) -> None:
+        """Simulate a test packet with firmware version 1.0 (byte 16) for testing purposes."""
+        try:
+            _LOGGER.info("SIMULATING TEST PACKET: Creating test data with firmware version 1.0")
+            
+            # Create test data that simulates what would come from a real packet
+            test_data = {
+                "address": self.address,
+                "name": "Gemns™ IoT Test Device Unit-001",
+                "rssi": -50,
+                "timestamp": datetime.now().isoformat(),
+                "device_type": "leak_sensor",
+                "sensor_data": {
+                    "device_type": 4,  # Leak sensor
+                    "leak_detected": False,
+                    "event_counter": 1
+                },
+                "battery_level": None,
+                "signal_strength": -50,
+                "firmware_version": "1.0",  # This simulates the parsed firmware version
+                "decrypted_data": {
+                    "src_id": 12345,
+                    "nwk_id": 6789,
+                    "fw_version": 16,  # Raw firmware byte (16 = 0x10)
+                    "firmware_version": "1.0",  # Parsed firmware version
+                    "device_type": b'\x00\x04',  # Leak sensor
+                    "payload": b'\x00\x00\x00\x00\x00\x00\x00\x00',
+                    "event_counter_lsb": 1,
+                    "payload_length": 0,
+                    "encrypt_status": 1,
+                    "power_status": 0,
+                }
+            }
+            
+            # Update coordinator data
+            self.data = test_data
+            self.last_update_success = True
+            
+            _LOGGER.info("TEST PACKET SIMULATED: Firmware version 1.0 set in coordinator data")
+            _LOGGER.info("TEST DATA: %s", test_data)
+            
+            # Notify listeners
+            self.async_update_listeners()
+            
+        except Exception as e:
+            _LOGGER.error("Error simulating test packet: %s", e)
+
     async def async_shutdown(self) -> None:
         """Shutdown the coordinator."""
         _LOGGER.info("Shutting down Gemns™ IoT BLE coordinator")
