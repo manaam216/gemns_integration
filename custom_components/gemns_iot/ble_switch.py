@@ -76,7 +76,7 @@ class GemnsBLESwitch(SwitchEntity):
             name=self._attr_name,
             manufacturer="Gemns™ IoT",
             model="BLE Switch",
-            sw_version="1.0.0",
+            sw_version=self.coordinator.data.get("firmware_version", "1.0.0"),
         )
         
         # Initialize switch properties
@@ -246,7 +246,7 @@ class GemnsBLESwitch(SwitchEntity):
             name=self._attr_name,
             manufacturer="Gemns™ IoT",
             model=model,
-            sw_version="1.0.0",
+            sw_version=self.coordinator.data.get("firmware_version", "1.0.0"),
         )
         
         # Set device image if available
