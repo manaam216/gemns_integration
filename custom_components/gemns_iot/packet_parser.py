@@ -148,6 +148,9 @@ class GemnsPacket:
             minor_version = fw_byte & 0x0F
             firmware_version = f"{major_version}.{minor_version}"
             
+            _LOGGER.info("FIRMWARE VERSION PARSING: Raw byte=%d (0x%02X) -> Major=%d, Minor=%d -> Version='%s'", 
+                        fw_byte, fw_byte, major_version, minor_version, firmware_version)
+            
             return {
                 'src_id': struct.unpack('<I', decrypted_packet.src_id + b'\x00')[0],  # Convert 3 bytes to 32-bit int
                 'nwk_id': struct.unpack('<H', decrypted_packet.nwk_id)[0],  # Convert to integer
