@@ -58,7 +58,7 @@ class GemnsBLEToggle(InputBoolean):
             name="Gemns™ IoT BLE Toggle",
             manufacturer="Gemns™ IoT",
             model="BLE Toggle",
-            sw_version="1.0.0",
+            sw_version=device.get("firmware_version", "1.0.0"),
         )
         
         # Set initial state
@@ -104,7 +104,7 @@ class GemnsZigbeeToggle(InputBoolean):
             name="Gemns™ IoT Zigbee Toggle",
             manufacturer="Gemns™ IoT",
             model="Zigbee Toggle",
-            sw_version="1.0.0",
+            sw_version=device.get("firmware_version", "1.0.0"),
         )
         
         # Set initial state
