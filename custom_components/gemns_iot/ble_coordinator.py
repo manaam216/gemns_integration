@@ -166,6 +166,7 @@ class GemnsBluetoothProcessorCoordinator(
                     if parsed_data:
                         data.update(parsed_data)
                         _LOGGER.info("GEMNS™ IOT DATA PARSED: %s | Result: %s", self.address, parsed_data)
+                        _LOGGER.info("FIRMWARE VERSION CHECK: %s | firmware_version in data: %s", self.address, data.get("firmware_version"))
                     else:
                         _LOGGER.warning("GEMNS™ IOT PARSE FAILED: %s | Data: %s", self.address, manufacturer_data.hex())
                 else:
@@ -216,6 +217,7 @@ class GemnsBluetoothProcessorCoordinator(
             else:
                 _LOGGER.warning("  Unknown device type: %d (0x%04X)", device_type, device_type)
         
+        _LOGGER.info("FINAL DATA CHECK: %s | firmware_version: %s", self.address, data.get("firmware_version"))
         return data
 
     def _parse_gems_manufacturer_data(self, data: bytes) -> dict[str, Any]:
