@@ -288,6 +288,12 @@ class GemnsBluetoothProcessorCoordinator(
         if 'decrypted_data' in parsed_packet:
             result['decrypted_data'] = parsed_packet['decrypted_data']
             _LOGGER.info("DECRYPTED DATA: %s", parsed_packet['decrypted_data'])
+            
+            # Extract firmware version from decrypted data
+            decrypted_data = parsed_packet['decrypted_data']
+            if 'firmware_version' in decrypted_data:
+                result['firmware_version'] = decrypted_data['firmware_version']
+                _LOGGER.info("FIRMWARE VERSION: %s", decrypted_data['firmware_version'])
         
         # Add sensor data if available
         if 'sensor_data' in parsed_packet:
