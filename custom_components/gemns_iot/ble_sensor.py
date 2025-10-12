@@ -1,3 +1,4 @@
+
 """BLE sensor platform for Gemns™ IoT integration."""
 
 import logging
@@ -135,7 +136,7 @@ class GemnsBLESensor(SensorEntity):
             name=self._attr_name,
             manufacturer="Gemns™ IoT",
             model="BLE Sensor",
-            sw_version="1.0.0",
+            sw_version=self.coordinator.data.get("firmware_version", "1.0.0"),
         )
         
         # Initialize sensor properties
@@ -326,7 +327,7 @@ class GemnsBLESensor(SensorEntity):
             name=self._attr_name,
             manufacturer="Gemns™ IoT",
             model=model,
-            sw_version="1.0.0",
+            sw_version=self.coordinator.data.get("firmware_version", "1.0.0"),
         )
         
         # Set device image if available
