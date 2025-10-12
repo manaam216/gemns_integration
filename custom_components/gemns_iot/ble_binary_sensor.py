@@ -79,7 +79,7 @@ class GemnsBLEBinarySensor(BinarySensorEntity):
             name=self._attr_name,
             manufacturer="Gemns™ IoT",
             model="Batteryless IoT Device",  # Generic model, will be updated
-            sw_version="1.0.0",
+            sw_version=self.coordinator.data.get("firmware_version", "1.0.0"),
         )
         
         # Initialize binary sensor properties
@@ -267,7 +267,7 @@ class GemnsBLEBinarySensor(BinarySensorEntity):
             name=self._attr_name,
             manufacturer="Gemns™ IoT",
             model=model,
-            sw_version="1.0.0",
+            sw_version=self.coordinator.data.get("firmware_version", "1.0.0"),
             suggested_area=suggested_area,
         )
         
