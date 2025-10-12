@@ -140,10 +140,19 @@ class GemnsPacket:
             _LOGGER.info("  Decrypted data hex: %s", decrypted_data.hex())
             _LOGGER.info("  Decrypted data bytes: %s", [hex(b) for b in decrypted_data])
             
+            # Format firmware version: single byte -> X.Y format
+            # First 4 bits = major version (left of decimal)
+            # Last 4 bits = minor version (right of decimal)
+            fw_byte = decrypted_packet.fw_version
+            major_version = (fw_byte >> 4) & 0x0F
+            minor_version = fw_byte & 0x0F
+            firmware_version = f"{major_version}.{minor_version}"
+            
             return {
                 'src_id': struct.unpack('<I', decrypted_packet.src_id + b'\x00')[0],  # Convert 3 bytes to 32-bit int
                 'nwk_id': struct.unpack('<H', decrypted_packet.nwk_id)[0],  # Convert to integer
-                'fw_version': decrypted_packet.fw_version,
+                'fw_version': fw_byte,  # Keep raw byte for debugging
+                'firmware_version': firmware_version,  # Formatted version string
                 'device_type': decrypted_packet.device_type,  # Keep as bytes
                 'payload': decrypted_packet.payload,  # Keep as bytes
                 'event_counter_lsb': self.flags.event_counter_lsb,
