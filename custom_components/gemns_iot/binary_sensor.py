@@ -73,9 +73,9 @@ class GemnsBLESensor(BinarySensorEntity):
             name="Gemns™ IoT BLE Dongle",
             manufacturer="Gemns™ IoT",
             model="BLE Dongle",
-            sw_version=device.get("firmware_version", "1.0.0"),
+            sw_version="1.0.0",
             configuration_url=f"https://github.com/gemns/gemns-homeassistant",
-            image="/local/gemns/ble_dongle.png",
+            image="/local/custom_components/gemns_iot/static/logo.png",
         )
         
         # Set custom icon for BLE dongle
@@ -148,9 +148,9 @@ class GemnsZigbeeSensor(BinarySensorEntity):
             name="Gemns™ IoT Zigbee Dongle",
             manufacturer="Gemns™ IoT",
             model="Zigbee Dongle",
-            sw_version=device.get("firmware_version", "1.0.0"),
+            sw_version="1.0.0",
             configuration_url=f"https://github.com/gemns/gemns-homeassistant",
-            image="/local/gemns/zigbee_dongle.png",
+            image="/local/custom_components/gemns_iot/static/logo.png",
         )
         
         # Set custom icon for Zigbee dongle

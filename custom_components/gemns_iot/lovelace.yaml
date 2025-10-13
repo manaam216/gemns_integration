@@ -30,7 +30,7 @@ views:
             - margin: 5px
         custom_fields:
           ble_status: >
-            [[[ return states['binary_sensor.gemns_ble_connected'].state === 'on' ? 'BLE Connected' : 'BLE Disconnected' ]]]
+            [[[ return states['binary_sensor.gemns_ble_connected'].state === 'on' ? '✅ BLE Connected' : '❌ BLE Disconnected' ]]]
 
       # Zigbee Status Card
       - type: custom:button-card
@@ -54,7 +54,7 @@ views:
             - margin: 5px
         custom_fields:
           zigbee_status: >
-            [[[ return states['binary_sensor.gemns_zigbee_connected'].state === 'on' ? 'Zigbee Connected' : 'Zigbee Disconnected' ]]]
+            [[[ return states['binary_sensor.gemns_zigbee_connected'].state === 'on' ? '✅ Zigbee Connected' : '❌ Zigbee Disconnected' ]]]
 
       # Add Device Button
       - type: custom:button-card
@@ -98,7 +98,7 @@ views:
             - margin: 5px
             - color: white
         custom_fields:
-          scan_text: "Scan Devices"
+          scan_text: "🔍 Scan Devices"
 
       # Device List
       - type: entities
@@ -133,7 +133,7 @@ views:
             - margin: 5px
         custom_fields:
           ble_toggle: >
-            [[[ return states['input_boolean.gemns_ble_enabled'].state === 'on' ? 'Disable BLE' : 'Enable BLE' ]]]
+            [[[ return states['input_boolean.gemns_ble_enabled'].state === 'on' ? '🔄 Disable BLE' : '🔄 Enable BLE' ]]]
 
       # Zigbee Toggle
       - type: custom:button-card
@@ -155,7 +155,7 @@ views:
             - margin: 5px
         custom_fields:
           zigbee_toggle: >
-            [[[ return states['input_boolean.gemns_zigbee_enabled'].state === 'on' ? 'Disable Zigbee' : 'Enable Zigbee' ]]]
+            [[[ return states['input_boolean.gemns_zigbee_enabled'].state === 'on' ? '🔄 Disable Zigbee' : '🔄 Enable Zigbee' ]]]
 
       # Manual Device Entry Form
       - type: custom:hui-element
