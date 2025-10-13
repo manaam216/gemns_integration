@@ -40,7 +40,7 @@ class GemnsEncryptedData:
         self.device_type = data[6:8]  # 2 bytes - Device type
         self.payload = data[8:16]  # 8 bytes - Custom payload
         
-        _LOGGER.info("ENCRYPTED DATA PARSING:")
+        _LOGGER.info("🔍 ENCRYPTED DATA PARSING:")
         _LOGGER.info("  Raw data: %s", data.hex())
         _LOGGER.info("  Raw data bytes: %s", [hex(b) for b in data])
         _LOGGER.info("  SRC ID (bytes 0-2): %s", self.src_id.hex())
@@ -65,7 +65,7 @@ class GemnsPacket:
         self.encrypted_data = GemnsEncryptedData(raw_data[1:17])  # 16 bytes encrypted data
         self.crc = raw_data[17]  # 1 byte CRC (position 17, not 16!)
         
-        _LOGGER.info("PACKET STRUCTURE: Length=%d, Flags=0x%02X, CRC=0x%02X", 
+        _LOGGER.info("🔍 PACKET STRUCTURE: Length=%d, Flags=0x%02X, CRC=0x%02X", 
                     len(raw_data), raw_data[0], self.crc)
     
     def is_valid_company_id(self) -> bool:
@@ -86,7 +86,7 @@ class GemnsPacket:
         data_to_check = full_packet[:-1]
         calculated_crc = self._calculate_crc8(data_to_check)
         
-        _LOGGER.info("CRC VALIDATION:")
+        _LOGGER.info("🔍 CRC VALIDATION:")
         _LOGGER.info("  Company ID bytes: %s", company_id_bytes.hex())
         _LOGGER.info("  Raw data: %s", self.raw_data.hex())
         _LOGGER.info("  Full packet: %s", full_packet.hex())
@@ -135,27 +135,15 @@ class GemnsPacket:
             # Parse decrypted data
             decrypted_packet = GemnsEncryptedData(decrypted_data)
             
-            _LOGGER.info("DECRYPTED DATA ANALYSIS:")
+            _LOGGER.info("🔍 DECRYPTED DATA ANALYSIS:")
             _LOGGER.info("  Decrypted data length: %d", len(decrypted_data))
             _LOGGER.info("  Decrypted data hex: %s", decrypted_data.hex())
             _LOGGER.info("  Decrypted data bytes: %s", [hex(b) for b in decrypted_data])
             
-            # Format firmware version: single byte -> X.Y format
-            # First 4 bits = major version (left of decimal)
-            # Last 4 bits = minor version (right of decimal)
-            fw_byte = decrypted_packet.fw_version
-            major_version = (fw_byte >> 4) & 0x0F
-            minor_version = fw_byte & 0x0F
-            firmware_version = f"{major_version}.{minor_version}"
-            
-            _LOGGER.info("FIRMWARE VERSION PARSING: Raw byte=%d (0x%02X) -> Major=%d, Minor=%d -> Version='%s'", 
-                        fw_byte, fw_byte, major_version, minor_version, firmware_version)
-            
             return {
                 'src_id': struct.unpack('<I', decrypted_packet.src_id + b'\x00')[0],  # Convert 3 bytes to 32-bit int
                 'nwk_id': struct.unpack('<H', decrypted_packet.nwk_id)[0],  # Convert to integer
-                'fw_version': fw_byte,  # Keep raw byte for debugging
-                'firmware_version': firmware_version,  # Formatted version string
+                'fw_version': decrypted_packet.fw_version,
                 'device_type': decrypted_packet.device_type,  # Keep as bytes
                 'payload': decrypted_packet.payload,  # Keep as bytes
                 'event_counter_lsb': self.flags.event_counter_lsb,
@@ -174,7 +162,7 @@ class GemnsPacket:
         device_type = struct.unpack('<H', device_type_bytes)[0]  # Little-endian unsigned short
         payload = decrypted_data['payload']  # Already bytes
         
-        _LOGGER.info("SENSOR DATA PARSING:")
+        _LOGGER.info("🔍 SENSOR DATA PARSING:")
         _LOGGER.info("  Device type bytes: %s", device_type_bytes.hex())
         _LOGGER.info("  Device type decimal: %d", device_type)
         _LOGGER.info("  Payload: %s", payload.hex())

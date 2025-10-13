@@ -136,7 +136,7 @@ class GemnsBLESensor(SensorEntity):
             name=self._attr_name,
             manufacturer="Gemns™ IoT",
             model="BLE Sensor",
-            sw_version=self.coordinator.data.get("firmware_version", "1.0.0"),
+            sw_version="1.0.0",
         )
         
         # Initialize sensor properties
@@ -225,11 +225,11 @@ class GemnsBLESensor(SensorEntity):
             return
             
         data = self.coordinator.data
-        _LOGGER.info("UPDATING SENSOR: %s | Coordinator data: %s", self.address, data)
+        _LOGGER.info("🔄 UPDATING SENSOR: %s | Coordinator data: %s", self.address, data)
         
         # Update device type
         self._device_type = data.get("device_type", "unknown")
-        _LOGGER.info("DEVICE TYPE: %s | Type: %s", self.address, self._device_type)
+        _LOGGER.info("🏷️ DEVICE TYPE: %s | Type: %s", self.address, self._device_type)
         
         # Set sensor properties based on device type
         self._set_sensor_properties()
@@ -242,7 +242,7 @@ class GemnsBLESensor(SensorEntity):
         
         # Update availability
         self._attr_available = True
-        _LOGGER.info("SENSOR UPDATED: %s | Available: %s | Value: %s | BLE_active: %s | Coordinator_available: %s", 
+        _LOGGER.info("✅ SENSOR UPDATED: %s | Available: %s | Value: %s | BLE_active: %s | Coordinator_available: %s", 
                      self.address, self._attr_available, self._attr_native_value, True, self.coordinator.available)
         
     def _set_sensor_properties(self) -> None:
@@ -327,7 +327,7 @@ class GemnsBLESensor(SensorEntity):
             name=self._attr_name,
             manufacturer="Gemns™ IoT",
             model=model,
-            sw_version=self.coordinator.data.get("firmware_version", "1.0.0"),
+            sw_version="1.0.0",
         )
         
         # Set device image if available
@@ -336,59 +336,59 @@ class GemnsBLESensor(SensorEntity):
     
     def _get_device_image(self, device_type: str) -> str:
         """Get device image URL based on device type."""
-        # Map device types to their corresponding image paths
+        # Map device types to their corresponding images
         image_map = {
-            "temperature_sensor": "/local/custom_components/gemns/static/icon.png",
-            "humidity_sensor": "/local/custom_components/gemns/static/icon.png", 
-            "pressure_sensor": "/local/custom_components/gemns/static/icon.png",
-            "vibration_sensor": "/local/custom_components/gemns/static/icon.png",
-            "leak_sensor": "/local/custom_components/gemns/static/icon.png",
-            "on_off_switch": "/local/custom_components/gemns/static/icon.png",
-            "light_switch": "/local/custom_components/gemns/static/icon.png",
-            "door_switch": "/local/custom_components/gemns/static/icon.png",
-            "toggle_switch": "/local/custom_components/gemns/static/icon.png",
+            "temperature_sensor": "/local/gems/temperature_sensor.png",
+            "humidity_sensor": "/local/gems/humidity_sensor.png",
+            "pressure_sensor": "/local/gems/pressure_sensor.png",
+            "vibration_sensor": "/local/gems/vibration_sensor.png",
+            "leak_sensor": "/local/gems/leak_sensor.png",
+            "on_off_switch": "/local/gems/switch.png",
+            "light_switch": "/local/gems/light_switch.png",
+            "door_switch": "/local/gems/door_sensor.png",
+            "toggle_switch": "/local/gems/toggle_switch.png",
         }
         
-        return image_map.get(device_type.lower(), "/local/custom_components/gemns/static/icon.png")
+        return image_map.get(device_type.lower(), "/local/gems/iot_sensor.png")
             
     def _extract_sensor_value(self, data: Dict[str, Any]) -> None:
         """Extract sensor value from coordinator data."""
-        _LOGGER.info("EXTRACTING SENSOR VALUE: %s | Data: %s", self.address, data)
+        _LOGGER.info("🔍 EXTRACTING SENSOR VALUE: %s | Data: %s", self.address, data)
         
         # Try to get sensor value from sensor_data
         sensor_data = data.get("sensor_data", {})
-        _LOGGER.info("SENSOR DATA: %s | Sensor data: %s", self.address, sensor_data)
+        _LOGGER.info("📊 SENSOR DATA: %s | Sensor data: %s", self.address, sensor_data)
         
         # Skip leak sensors - they should be handled by binary sensor
         if "leak_detected" in sensor_data:
             # Don't process leak sensors in regular sensor
-            _LOGGER.info("LEAK SENSOR SKIPPED: %s | Leak detected: %s (handled by binary sensor)", 
+            _LOGGER.info("💧 LEAK SENSOR SKIPPED: %s | Leak detected: %s (handled by binary sensor)", 
                         self.address, sensor_data["leak_detected"])
             
         elif "temperature" in sensor_data:
             self._attr_native_value = sensor_data["temperature"]
-            _LOGGER.info("TEMPERATURE SENSOR: %s | Temperature: %s", 
+            _LOGGER.info("🌡️ TEMPERATURE SENSOR: %s | Temperature: %s", 
                         self.address, self._attr_native_value)
             
         elif "humidity" in sensor_data:
             self._attr_native_value = sensor_data["humidity"]
-            _LOGGER.info("HUMIDITY SENSOR: %s | Humidity: %s", 
+            _LOGGER.info("💧 HUMIDITY SENSOR: %s | Humidity: %s", 
                         self.address, self._attr_native_value)
             
         elif "pressure" in sensor_data:
             self._attr_native_value = sensor_data["pressure"]
-            _LOGGER.info("PRESSURE SENSOR: %s | Pressure: %s", 
+            _LOGGER.info("📊 PRESSURE SENSOR: %s | Pressure: %s", 
                         self.address, self._attr_native_value)
             
         elif "vibration" in sensor_data:
             self._attr_native_value = sensor_data["vibration"]
-            _LOGGER.info("VIBRATION SENSOR: %s | Vibration: %s", 
+            _LOGGER.info("📳 VIBRATION SENSOR: %s | Vibration: %s", 
                         self.address, self._attr_native_value)
             
         elif "battery_level" in data and data["battery_level"] is not None:
             # Use battery level as a fallback sensor value
             self._attr_native_value = data["battery_level"]
-            _LOGGER.info("BATTERY LEVEL: %s | Battery: %s", 
+            _LOGGER.info("🔋 BATTERY LEVEL: %s | Battery: %s", 
                         self.address, self._attr_native_value)
             
         else:
@@ -399,11 +399,11 @@ class GemnsBLESensor(SensorEntity):
                 # RSSI typically ranges from -100 (very weak) to -30 (very strong)
                 signal_percentage = max(0, min(100, (rssi + 100) * 100 / 70))
                 self._attr_native_value = round(signal_percentage, 1)
-                _LOGGER.info("RSSI SIGNAL: %s | RSSI: %s dBm | Signal: %s%%", 
+                _LOGGER.info("📶 RSSI SIGNAL: %s | RSSI: %s dBm | Signal: %s%%", 
                             self.address, rssi, self._attr_native_value)
             else:
                 self._attr_native_value = None
-                _LOGGER.warning("NO SENSOR VALUE: %s | No RSSI or sensor data found", self.address)
+                _LOGGER.warning("⚠️ NO SENSOR VALUE: %s | No RSSI or sensor data found", self.address)
 
     async def async_update(self) -> None:
         """Update sensor state."""
