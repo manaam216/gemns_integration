@@ -74,7 +74,7 @@ class GemnsBLESensor(BinarySensorEntity):
             manufacturer="Gemns™ IoT",
             model="BLE Dongle",
             sw_version=device.get("firmware_version", "1.0.0"),
-            configuration_url=f"https://github.com/gemns/gemns-homeassistant",
+            configuration_url=f"https://github.com/manaam216/gemns_integration/blob/main/README.md",
             image="/local/gemns/ble_dongle.png",
         )
         
@@ -149,7 +149,7 @@ class GemnsZigbeeSensor(BinarySensorEntity):
             manufacturer="Gemns™ IoT",
             model="Zigbee Dongle",
             sw_version=device.get("firmware_version", "1.0.0"),
-            configuration_url=f"https://github.com/gemns/gemns-homeassistant",
+            configuration_url=f"https://github.com/manaam216/gemns_integration/blob/main/README.md",
             image="/local/gemns/zigbee_dongle.png",
         )
         
