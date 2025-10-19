@@ -54,7 +54,7 @@ INTEGRATION_NAME: Final = "Gemns™ IoT"
 INTEGRATION_VERSION: Final = "1.0.0"
 
 # BLE Packet Format Constants
-BLE_COMPANY_ID: Final = 0x5750  # Gemns™ IoT company ID
+BLE_COMPANY_ID: Final = 0x0F9C  # Gemns™ IoT company ID
 BLE_PACKET_LENGTH: Final = 20
 BLE_ENCRYPTED_DATA_SIZE: Final = 16
 
